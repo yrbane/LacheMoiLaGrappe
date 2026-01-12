@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CallFilter</string>
+
+    <!-- Home Screen -->
+    <string name="filter_unknown_calls">Filtrer les appels inconnus</string>
+    <string name="filter_unknown_calls_desc">Rejeter les appels de numéros non enregistrés</string>
+    <string name="use_spam_database">Utiliser la base spam</string>
+    <string name="use_spam_database_desc">Détecter et bloquer les numéros spam connus</string>
+    <string name="auto_sms">SMS automatique</string>
+    <string name="auto_sms_desc">Envoyer un SMS aux appelants inconnus</string>
+
+    <!-- History Screen -->
+    <string name="history">Historique</string>
+    <string name="no_calls_yet">Aucun appel filtré</string>
+    <string name="call_allowed">Autorisé</string>
+    <string name="call_rejected">Rejeté</string>
+    <string name="call_spam">Spam</string>
+
+    <!-- Settings Screen -->
+    <string name="settings">Paramètres</string>
+    <string name="sms_settings">Paramètres SMS</string>
+    <string name="spam_database">Base de données spam</string>
+    <string name="about">À propos</string>
+
+    <!-- Permissions -->
+    <string name="permission_contacts_title">Accès aux contacts</string>
+    <string name="permission_contacts_desc">Nécessaire pour identifier vos contacts et laisser passer leurs appels.</string>
+    <string name="permission_phone_title">État du téléphone</string>
+    <string name="permission_phone_desc">Nécessaire pour filtrer les appels entrants.</string>
+    <string name="permission_sms_title">Envoi de SMS</string>
+    <string name="permission_sms_desc">Optionnel. Permet d\'envoyer un SMS aux appelants inconnus.</string>
+    <string name="permission_notification_title">Notifications</string>
+    <string name="permission_notification_desc">Pour vous informer des appels filtrés.</string>
+
+    <!-- Actions -->
+    <string name="allow">Autoriser</string>
+    <string name="block">Bloquer</string>
+    <string name="add_to_contacts">Ajouter aux contacts</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Confirmer</string>
+    <string name="save">Enregistrer</string>
+
+    <!-- SMS Template -->
+    <string name="sms_template_default">Bonjour, je filtre les appels inconnus. Pouvez-vous m\'indiquer votre identité et l\'objet de votre appel ? Merci.</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_rejected">Appels rejetés</string>
+    <string name="notification_channel_spam">Spam détecté</string>
+    <string name="notification_channel_sms">SMS envoyés</string>
+    <string name="notification_rejected_title">Appel rejeté</string>
+    <string name="notification_spam_title">Spam détecté</string>
+</resources>
