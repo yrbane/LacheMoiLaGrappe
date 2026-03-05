@@ -21,6 +21,7 @@ data class HomeUiState(
     val autoSmsEnabled: Boolean = false,
     val todayRejectedCount: Int = 0,
     val todaySpamCount: Int = 0,
+    val totalBlockedCount: Int = 0,
     val isLoading: Boolean = true
 )
 
@@ -32,20 +33,21 @@ class HomeViewModel @Inject constructor(
 
     private val _todayRejectedCount = MutableStateFlow(0)
     private val _todaySpamCount = MutableStateFlow(0)
+    private val _totalBlockedCount = MutableStateFlow(0)
 
     val uiState: StateFlow<HomeUiState> = combine(
         settingsRepository.filterUnknownEnabled,
         settingsRepository.spamDbEnabled,
         settingsRepository.autoSmsEnabled,
-        _todayRejectedCount,
-        _todaySpamCount
-    ) { filterEnabled, spamEnabled, smsEnabled, rejected, spam ->
+        combine(_todayRejectedCount, _todaySpamCount, _totalBlockedCount) { r, s, t -> Triple(r, s, t) }
+    ) { filterEnabled, spamEnabled, smsEnabled, (rejected, spam, total) ->
         HomeUiState(
             filterUnknownEnabled = filterEnabled,
             spamDbEnabled = spamEnabled,
             autoSmsEnabled = smsEnabled,
             todayRejectedCount = rejected,
             todaySpamCount = spam,
+            totalBlockedCount = total,
             isLoading = false
         )
     }.stateIn(
@@ -60,7 +62,6 @@ class HomeViewModel @Inject constructor(
 
     private fun loadTodayStats() {
         viewModelScope.launch {
-            // Calculate midnight of today
             val todayStart = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
@@ -69,6 +70,7 @@ class HomeViewModel @Inject constructor(
             }.timeInMillis
 
             _todayRejectedCount.value = callLogRepository.getCallCountSince(todayStart)
+            _totalBlockedCount.value = callLogRepository.getTotalBlockedCount()
         }
     }
 

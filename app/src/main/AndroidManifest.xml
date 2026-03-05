@@ -71,6 +71,37 @@
             </intent-filter>
         </receiver>
 
+        <!-- FileProvider for CSV export -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Notification Action Receiver -->
+        <receiver
+            android:name=".service.ActionReceiver"
+            android:exported="false" />
+
+        <!-- Home Screen Widget -->
+        <receiver
+            android:name=".widget.CallFilterWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="fr.lachemoilagrappe.widget.ACTION_REFRESH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
     </application>
 
 </manifest>

@@ -12,4 +12,6 @@ interface CallLogRepository {
     fun getCallsByDecisionFlow(decision: CallDecision): Flow<List<CallLogEntry>>
     suspend fun getCallCountSince(since: Long): Int
     suspend fun deleteOlderThan(before: Long): Int
+    suspend fun getTotalBlockedCount(): Int
+    fun searchCallsFlow(query: String, limit: Int = 100): Flow<List<CallLogEntry>>
 }

@@ -53,6 +53,31 @@
     <string name="notification_telemarketer_title">Démarcheur bloqué</string>
     <string name="notification_hidden_title">Numéro masqué bloqué</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">Je pr\u00e9f\u00e8re avoir au bout du fil les gens qui m\u2019aiment moi, pas ceux qui aiment mon porte-monnaie</string>
+    <string name="onboarding_how_it_works">Comment \u00e7a marche ?</string>
+    <string name="onboarding_block_telemarketers">Bloque les d\u00e9marcheurs</string>
+    <string name="onboarding_block_telemarketers_desc">Identifie et rejette automatiquement les appels de d\u00e9marchage t\u00e9l\u00e9phonique.</string>
+    <string name="onboarding_filter_unknowns">Filtre les inconnus</string>
+    <string name="onboarding_filter_unknowns_desc">Les num\u00e9ros qui ne sont pas dans vos contacts sont filtr\u00e9s.</string>
+    <string name="onboarding_detect_spam">D\u00e9tecte le spam</string>
+    <string name="onboarding_detect_spam_desc">Utilise une base de donn\u00e9es de num\u00e9ros spam connus pour vous prot\u00e9ger.</string>
+    <string name="onboarding_permissions_title">Autorisations n\u00e9cessaires</string>
+    <string name="onboarding_authorize">Autoriser</string>
+    <string name="onboarding_permissions_granted">Autorisations accord\u00e9es</string>
+    <string name="onboarding_next">Suivant</string>
+    <string name="onboarding_finish">C\u2019est parti !</string>
+
     <!-- About -->
     <string name="privacy_policy_url">https://yrbane.github.io/LacheMoiLaGrappe/privacy</string>
+
+    <!-- Widget -->
+    <string name="widget_description">Affiche le nombre d\'appels bloqués aujourd\'hui</string>
+    <string name="widget_status_active">Actif</string>
+    <string name="widget_status_inactive">Inactif</string>
+    <string name="widget_loading">Chargement\u2026</string>
+    <plurals name="widget_blocked_today">
+        <item quantity="one">%d appel bloqué aujourd\'hui</item>
+        <item quantity="other">%d appels bloqués aujourd\'hui</item>
+    </plurals>
 </resources>

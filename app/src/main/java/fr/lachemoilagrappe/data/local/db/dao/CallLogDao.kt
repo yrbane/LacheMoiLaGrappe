@@ -40,4 +40,13 @@ interface CallLogDao {
 
     @Query("DELETE FROM call_log")
     suspend fun deleteAll()
+
+    @Query("SELECT COUNT(*) FROM call_log")
+    suspend fun getTotalCount(): Int
+
+    @Query("SELECT COUNT(*) FROM call_log WHERE decision != 'ALLOWED'")
+    suspend fun getTotalBlockedCount(): Int
+
+    @Query("SELECT * FROM call_log WHERE phoneNumber LIKE '%' || :query || '%' OR contactName LIKE '%' || :query || '%' OR normalizedNumber LIKE '%' || :query || '%' ORDER BY timestamp DESC LIMIT :limit")
+    fun searchCallsFlow(query: String, limit: Int = 100): Flow<List<CallLogEntry>>
 }

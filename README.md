@@ -21,8 +21,21 @@ LacheMoiLaGrappe est un **bouclier anti-emmerdeurs** pour votre telephone Androi
 - **Numeros masques** : Ceux qui se cachent derriere un numero prive n'ont qu'a assumer. Option activable
 - **Base spam** : Les numeros signales comme spam sont detectes et rejetes avec notification
 - **SMS automatique** : Un message poli est envoye a l'appelant inconnu pour lui demander de s'identifier. Parce qu'on est pas des sauvages non plus
-- **Allowlist / Blocklist** : Vous gardez le controle total. Autorisez ou bloquez qui vous voulez
-- **Prefixes personnalises** : Vous repérez un nouveau schema de demarchage ? Ajoutez le prefix vous-meme
+- **Allowlist / Blocklist** : Ecran dedie pour gerer vos listes, avec ajout rapide et swipe-to-delete
+- **Prefixes personnalises** : Vous reperez un nouveau schema de demarchage ? Ajoutez le prefix vous-meme
+
+## Fonctionnalites UX
+
+- **Onboarding** : Ecran d'accueil en 3 pages pour guider la configuration initiale et les permissions
+- **Swipe-to-action** : Dans l'historique, glissez a droite pour autoriser, a gauche pour bloquer
+- **Pull-to-refresh** : Tirez vers le bas pour rafraichir l'historique
+- **Recherche** : Cherchez dans l'historique par numero ou nom de contact
+- **Compteur total** : Nombre d'appels bloques depuis l'installation, affiche sur l'accueil
+- **Notifications groupees** : Les notifications de blocage sont regroupees pour ne pas spammer
+- **Export CSV** : Exportez votre historique d'appels filtres en CSV
+- **Retour haptique** : Vibration de confirmation sur les actions autoriser/bloquer
+- **Widget** : Widget home screen affichant le nombre d'appels bloques aujourd'hui
+- **Icone thematique** : Icone monochrome adaptative pour Android 13+
 
 ## Votre telephone, vos regles
 
@@ -53,7 +66,7 @@ cd LacheMoiLaGrappe
 ./gradlew assembleDebug
 ```
 
-Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/details?id=fr.lachemoilagrappe).
+Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/details?id=fr.lachemoilagrappe) (en attente de validation).
 
 ## Prerequis
 
@@ -81,20 +94,52 @@ Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/
 
 Clean Architecture en Kotlin :
 
-- **Domain** : UseCases (DecideCallAction, ShouldSendSms, SendIdentitySms, LogCallEvent)
-- **Data** : Room DB, DataStore, Repositories
-- **UI** : Jetpack Compose + Material 3 + Hilt ViewModels
-- **Service** : CallScreeningService natif Android
+```
+fr.lachemoilagrappe/
+├── di/                     # Injection de dependances (Hilt)
+├── domain/
+│   ├── model/              # Entites metier
+│   ├── repository/         # Interfaces repositories
+│   └── usecase/            # Use-cases
+├── data/
+│   ├── local/
+│   │   ├── db/             # Room (entities, DAOs)
+│   │   └── preferences/    # DataStore
+│   ├── remote/             # API spam (optionnel)
+│   └── repository/         # Implementations
+├── service/
+│   ├── CallFilterScreeningService.kt
+│   ├── NotificationHelper.kt
+│   ├── ActionReceiver.kt
+│   └── SmsService.kt
+├── widget/                 # Widget home screen
+├── worker/                 # WorkManager jobs
+├── ui/
+│   ├── theme/
+│   ├── screens/
+│   │   ├── home/           # Accueil + stats + toggles
+│   │   ├── history/        # Historique avec swipe/search
+│   │   ├── settings/       # Parametres complets
+│   │   ├── onboarding/     # Ecran de premiere utilisation
+│   │   ├── userlists/      # Gestion allow/blocklist
+│   │   └── debug/          # Ecran de test (debug only)
+│   └── navigation/
+└── util/                   # Helpers (phone parsing, etc.)
+```
 
 ### Stack
 
-Kotlin 2.0 | Jetpack Compose | Room | Hilt | WorkManager | Flow/Coroutines | libphonenumber | DataStore
+Kotlin 2.0 | Jetpack Compose | Material 3 | Room | Hilt | WorkManager | Flow/Coroutines | libphonenumber | DataStore
 
 ## Tests
 
 ```bash
 ./gradlew test
 ```
+
+## Vie privee
+
+Politique de confidentialite : [yrbane.github.io/LacheMoiLaGrappe/privacy](https://yrbane.github.io/LacheMoiLaGrappe/privacy.html)
 
 ## Licence
 

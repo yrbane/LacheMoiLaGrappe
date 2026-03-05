@@ -28,19 +28,25 @@ Marre des appels a la con ?
 
 Marre de ces types qui vous appellent en plein repas pour vous vendre une mutuelle dont vous n'avez pas besoin, une formation CPF bidon, ou des panneaux solaires alors que vous vivez en studio ?
 
-De nos jours, le consentement est cense etre la regle de base du savoir-vivre en societe. Mais les demarcheurs telephoniques s'en fichent completement. Ils appellent sans votre accord, a n'importe quelle heure, pour vous vendre des trucs que vous n'avez jamais demandes.
-
 C'est fini. LacheMoiLaGrappe est un bouclier anti-emmerdeurs pour votre telephone Android.
 
-FONCTIONNALITES :
+FILTRAGE INTELLIGENT :
 
-- Blocage des demarcheurs ARCEP : Les 17 prefixes reserves au demarchage (0162, 0163, 0270...) sont bloques automatiquement
+- Blocage des demarcheurs ARCEP : Les 17 prefixes reserves au demarchage sont bloques automatiquement
 - Filtrage des numeros inconnus : Pas dans vos contacts ? Pas de sonnerie
 - Blocage des numeros masques : Ceux qui se cachent n'ont qu'a assumer
 - Detection des spams : Base de donnees locale de numeros signales
 - SMS automatique : Reponse polie aux inconnus pour demander leur identite (opt-in)
-- Allowlist / Blocklist : Controle total sur qui peut vous appeler
+- Allowlist / Blocklist : Ecran dedie pour gerer vos listes
 - Prefixes personnalises : Ajoutez vos propres prefixes a bloquer
+
+UX SOIGNEE :
+
+- Onboarding guide pour la premiere utilisation
+- Historique avec recherche, swipe-to-action et export CSV
+- Widget home screen pour suivre les appels bloques
+- Notifications groupees et non intrusives
+- Retour haptique sur les actions
 
 RESPECT DE LA VIE PRIVEE :
 
@@ -108,13 +114,7 @@ L'application utilise READ_CALL_LOG pour acceder a l'historique des appels et en
 4. **Nom de la release** : 1.0.0
 5. **Notes de version** :
 ```
-Version initiale de LacheMoiLaGrappe.
-- Filtrage automatique des appels indesirables
-- Blocage des 17 prefixes demarcheurs ARCEP
-- Detection des spams
-- SMS automatique aux appelants inconnus (opt-in)
-- Blocage des numeros masques
-- Historique complet des appels filtres
+Fini les demarcheurs. Filtrage auto des appels indesirables, spams et numeros masques. Votre diner est sauve.
 ```
 6. Clique **"Examiner la release"** puis **"Lancer le deploiement en production"**
 

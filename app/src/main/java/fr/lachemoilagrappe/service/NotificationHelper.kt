@@ -69,8 +69,11 @@ class NotificationHelper @Inject constructor(
         return baseId + offset
     }
 
+    private var rejectedCountToday = 0
+
     fun showRejectedCallNotification(phoneNumber: String, action: CallAction) {
         val displayNumber = phoneNumberHelper.formatForDisplay(phoneNumber)
+        rejectedCountToday++
 
         val (channelId, title, text) = when (action) {
             is CallAction.RejectAsSpam -> Triple(
@@ -120,6 +123,7 @@ class NotificationHelper @Inject constructor(
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setGroup(GROUP_REJECTED)
             .addAction(
                 android.R.drawable.ic_menu_add,
                 context.getString(R.string.allow),
@@ -134,8 +138,42 @@ class NotificationHelper @Inject constructor(
 
         try {
             notificationManager.notify(notificationId, notification)
+            // Update the summary notification
+            if (rejectedCountToday > 1) {
+                showSummaryNotification()
+            }
         } catch (e: SecurityException) {
             Timber.e(e, "Permission denied for notification")
+        }
+    }
+
+    private fun showSummaryNotification() {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            SUMMARY_NOTIFICATION_ID,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val summary = NotificationCompat.Builder(context, CHANNEL_REJECTED)
+            .setSmallIcon(android.R.drawable.ic_menu_call)
+            .setContentTitle("LacheMoiLaGrappe")
+            .setContentText("$rejectedCountToday appels bloqués aujourd'hui")
+            .setStyle(NotificationCompat.InboxStyle()
+                .setSummaryText("$rejectedCountToday appels bloqués"))
+            .setGroup(GROUP_REJECTED)
+            .setGroupSummary(true)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        try {
+            notificationManager.notify(SUMMARY_NOTIFICATION_ID, summary)
+        } catch (e: SecurityException) {
+            Timber.e(e, "Permission denied for summary notification")
         }
     }
 
@@ -255,6 +293,9 @@ class NotificationHelper @Inject constructor(
         const val ACTION_BLOCK = "fr.lachemoilagrappe.ACTION_BLOCK"
         const val ACTION_SEND_SMS = "fr.lachemoilagrappe.ACTION_SEND_SMS"
         const val ACTION_DISMISS = "fr.lachemoilagrappe.ACTION_DISMISS"
+
+        private const val GROUP_REJECTED = "fr.lachemoilagrappe.REJECTED_GROUP"
+        private const val SUMMARY_NOTIFICATION_ID = 0
 
         // Max ID to prevent overflow (leave room for offsets)
         private const val MAX_NOTIFICATION_ID = 10_000_000

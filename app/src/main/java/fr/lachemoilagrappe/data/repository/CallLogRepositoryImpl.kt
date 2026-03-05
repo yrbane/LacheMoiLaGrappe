@@ -43,4 +43,12 @@ class CallLogRepositoryImpl @Inject constructor(
     override suspend fun deleteOlderThan(before: Long): Int {
         return callLogDao.deleteOlderThan(before)
     }
+
+    override suspend fun getTotalBlockedCount(): Int {
+        return callLogDao.getTotalBlockedCount()
+    }
+
+    override fun searchCallsFlow(query: String, limit: Int): Flow<List<CallLogEntry>> {
+        return callLogDao.searchCallsFlow(query, limit)
+    }
 }

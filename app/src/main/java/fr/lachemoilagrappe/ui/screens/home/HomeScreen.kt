@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.PhoneDisabled
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -62,6 +63,7 @@ import fr.lachemoilagrappe.R
 fun HomeScreen(
     onNavigateToHistory: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToUserLists: () -> Unit,
     onNavigateToDebug: (() -> Unit)? = null,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -80,10 +82,8 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
-                    if (onNavigateToDebug != null) {
-                        IconButton(onClick = onNavigateToDebug) {
-                            Icon(Icons.Default.Science, contentDescription = "Test")
-                        }
+                    IconButton(onClick = onNavigateToUserLists) {
+                        Icon(Icons.AutoMirrored.Filled.FormatListBulleted, contentDescription = "Mes listes")
                     }
                     IconButton(onClick = onNavigateToHistory) {
                         Icon(Icons.Default.History, contentDescription = stringResource(R.string.history))
@@ -119,6 +119,7 @@ fun HomeScreen(
             StatsCard(
                 rejectedToday = uiState.todayRejectedCount,
                 spamToday = uiState.todaySpamCount,
+                totalBlocked = uiState.totalBlockedCount,
                 isActive = isScreeningEnabled
             )
 
@@ -149,6 +150,45 @@ fun HomeScreen(
                 onCheckedChange = viewModel::setAutoSmsEnabled,
                 enabled = isScreeningEnabled
             )
+
+            // Debug test section (debug builds only)
+            if (onNavigateToDebug != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    onClick = onNavigateToDebug,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Science,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Test du filtrage",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Simuler des appels pour tester le filtrage",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -202,6 +242,7 @@ private fun ActivationCard(onActivate: () -> Unit) {
 private fun StatsCard(
     rejectedToday: Int,
     spamToday: Int,
+    totalBlocked: Int,
     isActive: Boolean
 ) {
     Card(
@@ -275,6 +316,17 @@ private fun StatsCard(
                     value = spamToday.toString(),
                     label = "Spams détectés",
                     icon = Icons.Default.Block
+                )
+            }
+            if (totalBlocked > 0) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "$totalBlocked appels bloqués depuis l'installation",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
         }

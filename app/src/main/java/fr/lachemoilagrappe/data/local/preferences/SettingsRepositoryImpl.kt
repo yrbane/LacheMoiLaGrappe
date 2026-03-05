@@ -34,6 +34,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val BLOCK_TELEMARKETERS_ENABLED = booleanPreferencesKey("block_telemarketers_enabled")
         val BLOCK_HIDDEN_NUMBERS_ENABLED = booleanPreferencesKey("block_hidden_numbers_enabled")
         val CUSTOM_TELEMARKETER_PREFIXES = stringPreferencesKey("custom_telemarketer_prefixes")
+        val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
     }
 
     private object Defaults {
@@ -76,6 +77,9 @@ class SettingsRepositoryImpl @Inject constructor(
             val json = preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] ?: "[]"
             jsonToSet(json)
         }
+
+    override val onboardingCompleted: Flow<Boolean> = context.dataStore.data
+        .map { it[Keys.ONBOARDING_COMPLETED] ?: false }
 
     override suspend fun setFilterUnknownEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.FILTER_UNKNOWN_ENABLED] = enabled }
@@ -153,6 +157,13 @@ class SettingsRepositoryImpl @Inject constructor(
             val updated = current - prefix
             preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] = setToJson(updated)
         }
+    }
+
+    override suspend fun getOnboardingCompleted(): Boolean =
+        onboardingCompleted.first()
+
+    override suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { it[Keys.ONBOARDING_COMPLETED] = completed }
     }
 
     override suspend fun setCustomTelemarketerPrefixes(prefixes: Set<String>) {

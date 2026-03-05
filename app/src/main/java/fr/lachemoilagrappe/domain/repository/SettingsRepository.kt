@@ -12,6 +12,7 @@ interface SettingsRepository {
     val blockTelemarketersEnabled: Flow<Boolean>
     val blockHiddenNumbersEnabled: Flow<Boolean>
     val customTelemarketerPrefixes: Flow<Set<String>>
+    val onboardingCompleted: Flow<Boolean>
 
     suspend fun setFilterUnknownEnabled(enabled: Boolean)
     suspend fun setSpamDbEnabled(enabled: Boolean)
@@ -35,4 +36,7 @@ interface SettingsRepository {
     suspend fun addCustomTelemarketerPrefix(prefix: String)
     suspend fun removeCustomTelemarketerPrefix(prefix: String)
     suspend fun setCustomTelemarketerPrefixes(prefixes: Set<String>)
+
+    suspend fun getOnboardingCompleted(): Boolean
+    suspend fun setOnboardingCompleted(completed: Boolean)
 }
