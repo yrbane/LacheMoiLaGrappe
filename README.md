@@ -1,97 +1,121 @@
-# CallFilter
+# LacheMoiLaGrappe
 
-Application Android de filtrage intelligent des appels entrants.
+> *Je prefere avoir au bout du fil les gens qui m'aiment moi, pas ceux qui aiment mon porte-monnaie.*
 
-## Description
+**Marre des appels a la con ?** Marre de ces types qui vous appellent en plein repas pour vous vendre une mutuelle dont vous n'avez pas besoin, une formation CPF bidon, ou des panneaux solaires alors que vous vivez en studio ? **Marre qu'on pietine votre consentement ?**
 
-CallFilter est une application Android qui filtre automatiquement les appels entrants non souhaités. Elle rejette les appels provenant de numéros inconnus (non enregistrés dans vos contacts) et détecte les spams grâce à une base de données locale actualisable.
+Bienvenue. **LacheMoiLaGrappe** est la reponse.
 
-## Fonctionnalités principales
+## Le probleme
 
-- **Filtrage des appels inconnus** : Rejette automatiquement les appels dont le numéro n'est pas dans vos contacts
-- **Détection des spams** : Consultation d'une base de données locale (catégorie, score, source) avec notifications
-- **SMS automatique** : Envoi d'un message poli aux appelants inconnus demandant leur identité (opt-in)
-- **Historique complet** : Consultation de tous les appels filtrés avec actions possibles
-- **Allowlist / Blocklist** : Gestion manuelle des numéros autorisés ou bloqués
-- **Respect de la vie privée** : Toutes les données restent locales par défaut
+De nos jours, le consentement est cense etre la regle de base du savoir-vivre en societe. Mais les demarcheurs telephoniques s'en fichent completement. Ils appellent sans votre accord, a n'importe quelle heure, pour vous vendre des trucs que vous n'avez jamais demandes. Vous avez dit non ? Ils rappellent. Vous etes inscrit sur Bloctel ? Ils s'en tamponnent.
 
-## Prérequis
+**C'est fini.**
 
-- Android 7.0+ (API 24+)
-- Permissions requises :
-  - `READ_CONTACTS` : Vérification des contacts
-  - `READ_PHONE_STATE` : Identification des appels
-  - `SEND_SMS` : Envoi de SMS automatiques (optionnel)
-  - `POST_NOTIFICATIONS` : Notifications d'appels rejetés
+## Ce que fait l'appli
 
-## Architecture
+LacheMoiLaGrappe est un **bouclier anti-emmerdeurs** pour votre telephone Android. Elle filtre automatiquement les appels non desires avant meme que votre telephone sonne :
 
-L'application suit une architecture Clean Architecture avec :
+- **Demarcheurs ARCEP** : Les 17 prefixes reserves au demarchage (0162, 0163, 0270...) sont bloques net. L'ARCEP les a identifies, on les degomme
+- **Numeros inconnus** : Pas dans vos contacts ? Pas de sonnerie. Simple, efficace, radical
+- **Numeros masques** : Ceux qui se cachent derriere un numero prive n'ont qu'a assumer. Option activable
+- **Base spam** : Les numeros signales comme spam sont detectes et rejetes avec notification
+- **SMS automatique** : Un message poli est envoye a l'appelant inconnu pour lui demander de s'identifier. Parce qu'on est pas des sauvages non plus
+- **Allowlist / Blocklist** : Vous gardez le controle total. Autorisez ou bloquez qui vous voulez
+- **Prefixes personnalises** : Vous repérez un nouveau schema de demarchage ? Ajoutez le prefix vous-meme
 
-- **Domain Layer** : Use-cases métier (DecideCallAction, LookupSpam, SendIdentitySms...)
-- **Data Layer** : Repositories (Contacts, Spam, Settings, CallLog, SMS)
-- **Presentation Layer** : UI Jetpack Compose + ViewModels
+## Votre telephone, vos regles
 
-### Stack technique
+- **Zero collecte de donnees** : Tout reste sur votre telephone. Pas de serveur, pas de tracking, pas de business louche avec vos donnees
+- **Open source** : Le code est la, lisez-le. On n'a rien a cacher (contrairement aux demarcheurs)
+- **Gratuit** : Pas de pub, pas d'abonnement, pas de "version premium". Juste la paix
 
-- Kotlin
-- Jetpack Compose (UI)
-- Room (base de données locale)
-- Hilt (injection de dépendances)
-- WorkManager (synchronisation en arrière-plan)
-- Flow / Coroutines (programmation réactive)
-- libphonenumber (normalisation des numéros)
+## Prefixes demarcheurs bloques (ARCEP)
+
+### France metropolitaine
+- 0162, 0163, 0270, 0271, 0377, 0378
+- 0424, 0425, 0568, 0569, 0948, 0949
+
+### DOM-TOM
+- 09475 (Guadeloupe, Saint-Martin, Saint-Barthelemy)
+- 09476 (Guyane)
+- 09477 (Martinique)
+- 09478, 09479 (La Reunion, Mayotte)
+
+### Prefixes personnalises
+En plus des 17 prefixes ARCEP officiels, ajoutez vos propres prefixes depuis les parametres (4-5 chiffres).
 
 ## Installation
 
 ```bash
-git clone https://github.com/USERNAME/callfilter.git
-cd callfilter
+git clone https://github.com/yrbane/LacheMoiLaGrappe.git
+cd LacheMoiLaGrappe
 ./gradlew assembleDebug
 ```
 
-## Configuration
+Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/details?id=fr.lachemoilagrappe).
 
-### Activation du service
+## Prerequis
 
-L'application utilise `CallScreeningService` d'Android. Au premier lancement :
+- Android 7.0+ (API 24+)
+- Permissions :
+  - `READ_CONTACTS` : Pour laisser passer vos vrais contacts
+  - `READ_PHONE_STATE` / `READ_CALL_LOG` : Pour intercepter les appels
+  - `SEND_SMS` (optionnel) : Pour repondre poliment aux inconnus
+  - `POST_NOTIFICATIONS` : Pour vous informer des appels bloques
 
-1. Accordez les permissions demandées
-2. Définissez CallFilter comme service de filtrage d'appels
-3. Configurez vos préférences dans les paramètres
+## Parametres
 
-### Paramètres disponibles
-
-| Paramètre | Description | Défaut |
+| Parametre | Description | Defaut |
 |-----------|-------------|--------|
 | Filtrer les inconnus | Rejeter les appels non-contacts | ON |
-| Base spam | Activer la détection spam | ON |
-| SMS automatique | Envoyer un SMS aux inconnus | OFF |
+| Base spam | Detection des numeros spam | ON |
+| Bloquer les demarcheurs | Prefixes ARCEP | ON |
+| Numeros masques | Rejeter les appels prives | OFF |
+| SMS automatique | Reponse aux inconnus | OFF |
 | Mode confirmation | Valider avant envoi SMS | ON |
-| Cooldown SMS | Délai entre SMS (même numéro) | 24h |
+| Cooldown SMS | Delai entre SMS (meme numero) | 24h |
+| Template SMS | Message personnalisable | Defaut |
 
-## Conformité Google Play
+## Architecture
 
-- Utilisation exclusive de `CallScreeningService` (pas d'abus d'accessibilité)
-- SMS opt-in uniquement avec consentement explicite
-- Pas de collecte de données distante sans consentement
-- Respect des guidelines de permissions runtime
+Clean Architecture en Kotlin :
 
-## Limitations connues
+- **Domain** : UseCases (DecideCallAction, ShouldSendSms, SendIdentitySms, LogCallEvent)
+- **Data** : Room DB, DataStore, Repositories
+- **UI** : Jetpack Compose + Material 3 + Hilt ViewModels
+- **Service** : CallScreeningService natif Android
 
-- Détection mobile/fixe non fiable à 100% (heuristique libphonenumber)
-- Numéros masqués non gérables
-- Certains appels VoIP peuvent ne pas être interceptés
-- Double SIM : comportement selon configuration système
+### Stack
+
+Kotlin 2.0 | Jetpack Compose | Room | Hilt | WorkManager | Flow/Coroutines | libphonenumber | DataStore
+
+## Tests
+
+```bash
+./gradlew test
+```
 
 ## Licence
 
 MIT License - Voir [LICENSE](LICENSE)
 
-## Contribution
+## Soutenir le projet
 
-Les contributions sont bienvenues. Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour les guidelines.
+Cette appli est **gratuite, open-source, sans pub, sans tracking**. Contrairement aux demarcheurs, je ne vous vendrai jamais rien. Mais si LacheMoiLaGrappe vous a rendu un peu de serenite telephonique et que vous voulez filer un coup de pouce a un dev qui galere (mais qui au moins n'essaye pas de vendre des trucs a des gens innocents), c'est par ici :
 
-## Contact
+| Methode | Lien |
+|---------|------|
+| PayPal | [paypal.me/sphilippe1209](https://paypal.me/sphilippe1209) |
+| GitHub Sponsors | [Sponsoriser sur GitHub](https://github.com/sponsors/yrbane) |
+| Bitcoin | `bc1qgs7qk2zstyu4c6vs4m60757zh9tr0umznlxf5k` |
 
-Pour signaler un bug ou proposer une fonctionnalité, ouvrez une issue sur GitHub.
+Meme un cafe, ca fait plaisir. Et ca me motive a continuer de faire chier les demarcheurs.
+
+## Contribuer
+
+Les contributions sont les bienvenues. Plus on est nombreux contre les demarcheurs, mieux c'est.
+
+---
+
+*LacheMoiLaGrappe - Parce que je prefere avoir au bout du fil les gens qui m'aiment moi, pas ceux qui aiment mon porte-monnaie.*

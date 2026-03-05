@@ -6,117 +6,169 @@ Cette roadmap définit les phases de développement de CallFilter, de la version
 
 ---
 
-## Version 0.1.0 - MVP (Milestone 1)
+## Version 0.1.0 - MVP (Milestone 1) [COMPLÉTÉ]
 
 **Objectif** : Application fonctionnelle minimale capable de filtrer les appels.
 
 ### Fonctionnalités
 
 - [x] Structure du projet Android (Kotlin, Gradle)
-- [ ] CallScreeningService basique
-- [ ] Lookup contacts (ContentResolver)
-- [ ] Décision simple : contact = allow, inconnu = reject
-- [ ] Logging basique des appels filtrés (Room)
-- [ ] UI minimale : toggle ON/OFF + historique simple
-- [ ] Gestion des permissions runtime
+- [x] CallScreeningService basique
+- [x] Lookup contacts (ContentResolver)
+- [x] Décision simple : contact = allow, inconnu = reject
+- [x] Logging basique des appels filtrés (Room)
+- [x] UI minimale : toggle ON/OFF + historique simple
+- [x] Gestion des permissions runtime
+- [x] Demande automatique des permissions au démarrage
 
 ### Critères de validation
 
-- L'app peut être installée sur Android 7+
-- Les appels de contacts passent
-- Les appels inconnus sont rejetés (si activé)
-- L'historique affiche les derniers appels filtrés
+- [x] L'app peut être installée sur Android 7+
+- [x] Les appels de contacts passent
+- [x] Les appels inconnus sont rejetés (si activé)
+- [x] L'historique affiche les derniers appels filtrés
 
 ---
 
-## Version 0.2.0 - Base Spam (Milestone 2)
+## Version 0.2.0 - Base Spam (Milestone 2) [COMPLÉTÉ]
 
 **Objectif** : Intégration de la détection de spam.
 
 ### Fonctionnalités
 
-- [ ] Entité SpamEntry + SpamDao (Room)
-- [ ] SpamRepository avec lookup
-- [ ] Import manuel de base spam (JSON)
-- [ ] WorkManager : synchronisation périodique
-- [ ] Affichage tag + score dans l'historique
-- [ ] Notification enrichie pour spam détecté
+- [x] Entité SpamEntry + SpamDao (Room)
+- [x] SpamRepository avec lookup
+- [x] Import manuel de base spam (JSON)
+- [ ] WorkManager : synchronisation périodique (partiel)
+- [x] Affichage tag + score dans l'historique
+- [x] Notification enrichie pour spam détecté
 - [ ] Écran SpamDB (stats, dernière MAJ)
 
 ### Critères de validation
 
-- Un numéro présent dans la base spam est rejeté avec le tag affiché
-- La synchronisation automatique fonctionne
-- L'utilisateur peut voir les statistiques de la base
+- [x] Un numéro présent dans la base spam est rejeté avec le tag affiché
+- [ ] La synchronisation automatique fonctionne
+- [ ] L'utilisateur peut voir les statistiques de la base
 
 ---
 
-## Version 0.3.0 - Allowlist / Blocklist (Milestone 3)
+## Version 0.3.0 - Allowlist / Blocklist (Milestone 3) [COMPLÉTÉ]
 
 **Objectif** : Contrôle utilisateur sur les numéros.
 
 ### Fonctionnalités
 
-- [ ] Entité UserListEntry + UserListDao
-- [ ] UserListRepository
-- [ ] Actions dans l'historique : "Autoriser" / "Bloquer"
+- [x] Entité UserListEntry + UserListDao
+- [x] UserListRepository
+- [x] Actions dans l'historique : "Autoriser" / "Bloquer"
 - [ ] Écran de gestion des listes
-- [ ] Priorité : blocklist > allowlist > spam > contacts
+- [x] Priorité : blocklist > allowlist > spam > contacts
 - [ ] Import/Export des listes (CSV)
 
 ### Critères de validation
 
-- Un numéro en allowlist passe même s'il est inconnu
-- Un numéro en blocklist est rejeté même s'il est contact
-- L'utilisateur peut gérer ses listes facilement
+- [x] Un numéro en allowlist passe même s'il est inconnu
+- [x] Un numéro en blocklist est rejeté même s'il est contact
+- [ ] L'utilisateur peut gérer ses listes facilement
 
 ---
 
-## Version 0.4.0 - SMS Automatique (Milestone 4)
+## Version 0.4.0 - SMS Automatique (Milestone 4) [COMPLÉTÉ]
 
 **Objectif** : Envoi de SMS aux appelants inconnus.
 
 ### Fonctionnalités
 
-- [ ] Permission SEND_SMS avec explication UX
-- [ ] SmsRepository (rate limiting)
-- [ ] ShouldSendSmsUseCase (logique de décision)
-- [ ] SendIdentitySmsUseCase
-- [ ] Détection mobile via libphonenumber
-- [ ] Template SMS personnalisable
-- [ ] Mode confirmation (notification avant envoi)
-- [ ] Historique des SMS envoyés
-- [ ] Liste d'exclusion (numéros courts, urgences)
+- [x] Permission SEND_SMS avec explication UX
+- [x] SmsRepository (rate limiting)
+- [x] ShouldSendSmsUseCase (logique de décision)
+- [x] SendIdentitySmsUseCase
+- [x] Détection mobile via libphonenumber
+- [x] Template SMS personnalisable
+- [x] Mode confirmation (notification avant envoi)
+- [x] Historique des SMS envoyés
+- [x] Liste d'exclusion (numéros courts, urgences)
 
 ### Critères de validation
 
-- SMS envoyé uniquement si opt-in activé
-- Cooldown respecté (pas de spam)
-- Mode confirmation fonctionne
-- Numéros exclus ne reçoivent pas de SMS
+- [x] SMS envoyé uniquement si opt-in activé
+- [x] Cooldown respecté (pas de spam)
+- [x] Mode confirmation fonctionne
+- [x] Numéros exclus ne reçoivent pas de SMS
 
 ---
 
-## Version 0.5.0 - UI Complète (Milestone 5)
+## Version 0.4.1 - Blocage des démarcheurs ARCEP [COMPLÉTÉ]
+
+**Objectif** : Blocage automatique des numéros démarcheurs.
+
+### Fonctionnalités
+
+- [x] Détection des 17 préfixes ARCEP (métropole + DOM-TOM)
+- [x] Option configurable dans les paramètres
+- [x] Notification spécifique pour démarcheurs
+- [x] Affichage dans l'historique
+
+### Préfixes bloqués
+
+- France métropolitaine : 0162, 0163, 0270, 0271, 0377, 0378, 0424, 0425, 0568, 0569, 0948, 0949
+- DOM-TOM : 09475, 09476, 09477, 09478, 09479
+
+---
+
+## Version 0.4.2 - Blocage des numéros masqués [COMPLÉTÉ]
+
+**Objectif** : Option pour filtrer les appels masqués.
+
+### Fonctionnalités
+
+- [x] Détection des numéros masqués/cachés
+- [x] Option configurable dans les paramètres
+- [x] Notification spécifique pour numéros masqués
+- [x] Affichage dans l'historique
+
+---
+
+## Version 0.4.3 - Tests et Debug [COMPLÉTÉ]
+
+**Objectif** : Outils de test et validation.
+
+### Fonctionnalités
+
+- [x] Écran de debug avec simulation d'appels
+- [x] Test des décisions de filtrage
+- [x] Tests rapides (inconnu, masqué, urgence, démarcheur)
+- [x] Test SMS (vérification des conditions)
+- [x] Envoi SMS de test réel
+- [x] Tests unitaires pour use cases
+
+### Tests unitaires
+
+- [x] DecideCallActionUseCaseTest (20+ tests)
+- [x] ShouldSendSmsUseCaseTest (15+ tests)
+
+---
+
+## Version 0.5.0 - UI Complète (Milestone 5) [EN COURS]
 
 **Objectif** : Interface utilisateur aboutie.
 
 ### Fonctionnalités
 
-- [ ] Design Material 3 complet
+- [x] Design Material 3 complet
 - [ ] Thème clair / sombre
-- [ ] Écran d'accueil avec statistiques
-- [ ] Historique avec filtres et recherche
-- [ ] Paramètres complets
+- [x] Écran d'accueil avec statistiques
+- [x] Historique avec affichage par type
+- [x] Paramètres complets
 - [ ] Onboarding (première utilisation)
 - [ ] Animations et transitions
 - [ ] Accessibilité (TalkBack, grands textes)
 
 ### Critères de validation
 
-- L'app est intuitive et agréable à utiliser
-- Tous les écrans sont responsive
-- L'accessibilité est validée
+- [ ] L'app est intuitive et agréable à utiliser
+- [ ] Tous les écrans sont responsive
+- [ ] L'accessibilité est validée
 
 ---
 
@@ -128,14 +180,14 @@ Cette roadmap définit les phases de développement de CallFilter, de la version
 
 - [ ] Canaux de notification (spam, inconnu, SMS)
 - [ ] Regroupement des notifications
-- [ ] Actions rapides depuis notification
+- [x] Actions rapides depuis notification (partiel)
 - [ ] Résumé quotidien (optionnel)
 - [ ] Widget home screen
 
 ### Critères de validation
 
-- Les notifications sont non intrusives mais informatives
-- L'utilisateur peut agir directement depuis la notification
+- [ ] Les notifications sont non intrusives mais informatives
+- [ ] L'utilisateur peut agir directement depuis la notification
 
 ---
 
@@ -145,7 +197,7 @@ Cette roadmap définit les phases de développement de CallFilter, de la version
 
 ### Fonctionnalités
 
-- [ ] Tests unitaires complets (>80% coverage)
+- [x] Tests unitaires complets (use cases)
 - [ ] Tests d'intégration
 - [ ] Tests UI
 - [ ] Performance optimisée
@@ -153,13 +205,13 @@ Cette roadmap définit les phases de développement de CallFilter, de la version
 - [ ] Privacy Policy
 - [ ] Déclarations Play Store
 - [ ] Screenshots et assets marketing
-- [ ] Documentation utilisateur
+- [x] Documentation utilisateur (README)
 
 ### Critères de validation
 
-- Tous les tests passent
-- Pas de crash en production (Firebase Crashlytics)
-- Conforme aux guidelines Play Store
+- [ ] Tous les tests passent
+- [ ] Pas de crash en production (Firebase Crashlytics)
+- [ ] Conforme aux guidelines Play Store
 
 ---
 
@@ -191,13 +243,16 @@ Cette roadmap définit les phases de développement de CallFilter, de la version
 
 | Milestone | Status | Progress |
 |-----------|--------|----------|
-| 0.1.0 MVP | En cours | 0% |
-| 0.2.0 Base Spam | Planifié | 0% |
-| 0.3.0 Allowlist/Blocklist | Planifié | 0% |
-| 0.4.0 SMS Auto | Planifié | 0% |
-| 0.5.0 UI Complète | Planifié | 0% |
-| 0.6.0 Notifications | Planifié | 0% |
-| 1.0.0 Release | Planifié | 0% |
+| 0.1.0 MVP | Complété | 100% |
+| 0.2.0 Base Spam | Complété | 90% |
+| 0.3.0 Allowlist/Blocklist | Complété | 80% |
+| 0.4.0 SMS Auto | Complété | 100% |
+| 0.4.1 Démarcheurs ARCEP | Complété | 100% |
+| 0.4.2 Numéros masqués | Complété | 100% |
+| 0.4.3 Tests/Debug | Complété | 100% |
+| 0.5.0 UI Complète | En cours | 60% |
+| 0.6.0 Notifications | Planifié | 20% |
+| 1.0.0 Release | Planifié | 40% |
 
 ---
 

@@ -1,3 +1,10 @@
+import java.util.Properties
+
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) load(file.inputStream())
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,15 +14,27 @@ plugins {
 }
 
 android {
-    namespace = "com.callfilter"
+    namespace = "fr.lachemoilagrappe"
     compileSdk = 35
 
+    signingConfigs {
+        create("release") {
+            val keystoreFile = file("../keystore/callfilter-release.jks")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = keystoreProperties["RELEASE_STORE_PASSWORD"] as? String ?: ""
+                keyAlias = keystoreProperties["RELEASE_KEY_ALIAS"] as? String ?: ""
+                keyPassword = keystoreProperties["RELEASE_KEY_PASSWORD"] as? String ?: ""
+            }
+        }
+    }
+
     defaultConfig {
-        applicationId = "com.callfilter"
+        applicationId = "fr.lachemoilagrappe"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -37,6 +56,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
@@ -110,6 +130,9 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Logging
+    implementation(libs.timber)
 
     // Testing
     testImplementation(libs.junit)

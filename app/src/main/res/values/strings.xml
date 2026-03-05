@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CallFilter</string>
+    <string name="app_name">LacheMoiLaGrappe</string>
 
     <!-- Home Screen -->
     <string name="filter_unknown_calls">Filtrer les appels inconnus</string>
@@ -50,4 +50,9 @@
     <string name="notification_channel_sms">SMS envoyés</string>
     <string name="notification_rejected_title">Appel rejeté</string>
     <string name="notification_spam_title">Spam détecté</string>
+    <string name="notification_telemarketer_title">Démarcheur bloqué</string>
+    <string name="notification_hidden_title">Numéro masqué bloqué</string>
+
+    <!-- About -->
+    <string name="privacy_policy_url">https://yrbane.github.io/LacheMoiLaGrappe/privacy</string>
 </resources>
