@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1565C0"/>
+      <stop offset="100%" stop-color="#1976D2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="500" fill="url(#bg)"/>
+
+  <!-- Shield icon (left side) -->
+  <g transform="translate(120, 80) scale(0.8)">
+    <path d="M200 30 L100 80 L100 210 C100 280 145 340 200 360 C255 340 300 280 300 210 L300 80 Z" fill="white" fill-opacity="0.15"/>
+    <path d="M200 50 L120 90 L120 200 C120 260 155 310 200 325 C245 310 280 260 280 200 L280 90 Z" fill="white" fill-opacity="0.25"/>
+    <!-- Phone -->
+    <path d="M155 170 C155 170 168 190 188 210 C208 230 228 243 228 243 L248 223 C252 219 260 217 265 220 L287 232 C293 235 296 242 294 249 L289 270 C287 276 280 280 274 278 C230 265 170 205 155 155 C153 148 157 143 163 140 L184 133 C190 131 197 134 200 140 L211 165 C213 170 212 177 208 181 Z" fill="white" fill-opacity="0.9"/>
+    <!-- X -->
+    <path d="M245 100 L268 77 L282 91 L259 114 L282 137 L268 151 L245 128 L222 151 L208 137 L231 114 L208 91 L222 77 Z" fill="#F44336"/>
+  </g>
+
+  <!-- Text -->
+  <text x="520" y="200" font-family="sans-serif" font-weight="bold" font-size="72" fill="white">LacheMoi</text>
+  <text x="520" y="280" font-family="sans-serif" font-weight="bold" font-size="72" fill="white">LaGrappe</text>
+  <text x="520" y="340" font-family="sans-serif" font-weight="300" font-size="24" fill="white" fill-opacity="0.8">Votre telephone, vos regles.</text>
+  <text x="520" y="410" font-family="sans-serif" font-weight="300" font-size="18" fill="white" fill-opacity="0.6">Bloquez demarcheurs, spams et appels indesirables.</text>
+</svg>
