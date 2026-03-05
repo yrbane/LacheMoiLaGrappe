@@ -54,6 +54,10 @@ captures/
 keystore/
 keystore.properties
 
+# Google service account keys
+play-publisher-key.json
+*-service-account*.json
+
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/

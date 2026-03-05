@@ -7,6 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,12 +16,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.PhoneDisabled
 import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,8 +49,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import fr.lachemoilagrappe.R
@@ -91,8 +100,9 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .verticalScroll(rememberScrollState())
+                .animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Warning if not enabled as call screening service
             if (!isScreeningEnabled) {
@@ -105,17 +115,16 @@ fun HomeScreen(
                 )
             }
 
-            // Stats Card
+            // Hero Stats Card
             StatsCard(
                 rejectedToday = uiState.todayRejectedCount,
                 spamToday = uiState.todaySpamCount,
                 isActive = isScreeningEnabled
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Settings Toggles
+            // Quick toggles with icons
             SettingToggle(
+                icon = Icons.Default.PhoneDisabled,
                 title = stringResource(R.string.filter_unknown_calls),
                 description = stringResource(R.string.filter_unknown_calls_desc),
                 checked = uiState.filterUnknownEnabled,
@@ -124,6 +133,7 @@ fun HomeScreen(
             )
 
             SettingToggle(
+                icon = Icons.Default.Block,
                 title = stringResource(R.string.use_spam_database),
                 description = stringResource(R.string.use_spam_database_desc),
                 checked = uiState.spamDbEnabled,
@@ -132,6 +142,7 @@ fun HomeScreen(
             )
 
             SettingToggle(
+                icon = Icons.Default.Sms,
                 title = stringResource(R.string.auto_sms),
                 description = stringResource(R.string.auto_sms_desc),
                 checked = uiState.autoSmsEnabled,
@@ -203,45 +214,87 @@ private fun StatsCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Aujourd'hui",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Text(
-                    text = if (isActive) "Actif" else "Inactif",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (isActive)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.error
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Shield,
+                        contentDescription = null,
+                        tint = if (isActive)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Text(
+                        text = "Aujourd'hui",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isActive)
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                        else
+                            MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
+                    )
+                ) {
+                    Text(
+                        text = if (isActive) "Actif" else "Inactif",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isActive)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatItem(value = rejectedToday.toString(), label = "Appels filtrés")
-                StatItem(value = spamToday.toString(), label = "Spams détectés")
+                StatItem(
+                    value = rejectedToday.toString(),
+                    label = "Appels filtrés",
+                    icon = Icons.Default.PhoneDisabled
+                )
+                StatItem(
+                    value = spamToday.toString(),
+                    label = "Spams détectés",
+                    icon = Icons.Default.Block
+                )
             }
         }
     }
 }
 
 @Composable
-private fun StatItem(value: String, label: String) {
+private fun StatItem(value: String, label: String, icon: ImageVector) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = value,
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
         Text(
@@ -254,6 +307,7 @@ private fun StatItem(value: String, label: String) {
 
 @Composable
 private fun SettingToggle(
+    icon: ImageVector,
     title: String,
     description: String,
     checked: Boolean,
@@ -270,6 +324,16 @@ private fun SettingToggle(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = if (enabled && checked)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -299,7 +363,6 @@ private fun checkScreeningRole(context: Context): Boolean {
         val roleManager = context.getSystemService(Context.ROLE_SERVICE) as RoleManager
         roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)
     } else {
-        // Pour API < 29, on ne peut pas vérifier facilement
         true
     }
 }
@@ -312,7 +375,6 @@ private fun requestScreeningRole(context: Context, launcher: (Intent) -> Unit) {
             launcher(intent)
         }
     } else {
-        // Pour les anciennes versions, ouvrir les paramètres
         val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
         launcher(intent)
     }
