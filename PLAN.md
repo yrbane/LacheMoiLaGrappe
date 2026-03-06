@@ -44,12 +44,16 @@ Ce document détaille l'architecture et les phases techniques de **LacheMoiLaGra
 
 ---
 
-## Prochaine Étape : Phase 11 - v1.2.0 Sérénité Familiale
+## Phase 11 : v1.2.0 - Sérénité Familiale [COMPLETE]
 
-- [ ] Implémenter le compteur de tentatives pour le **Mode Urgence**.
-- [ ] Créer le repository pour la **Whitelist Services Publics**.
-- [ ] Refondre l'onboarding vers un **Wizard** simplifié.
+- [x] **Mode Urgence Intelligent** : Implémentation du compteur de tentatives (3 appels en 5 min).
+- [x] **Whitelist Services Publics** : Numéros d'urgence et administrations (SAMU, Police, Ameli...).
+- [x] **Wizard de Configuration** : Refonte de l'onboarding vers un assistant simplifié (Questions Oui/Non).
+- [x] **Mode Sommeil** : Désactivation automatique du filtrage sur une plage horaire configurable.
+- [x] **Tests d'Intégration** : Validation de la logique `DecideCallActionUseCase`.
 
 ---
+
+## Prochaine Étape : Phase 12 - v1.3.0 Intelligence & Automatisme
 
 *LacheMoiLaGrappe - Sécurité, Transparence, Simplicité.*

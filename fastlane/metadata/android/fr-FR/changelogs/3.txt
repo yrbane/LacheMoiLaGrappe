@@ -1,0 +1,1 @@
+v1.2.0 - Mode Urgence Intelligent (3 appels/5min), Whitelist Services Publics, Assistant de configuration simplifié (Wizard), Mode Sommeil nocturne.

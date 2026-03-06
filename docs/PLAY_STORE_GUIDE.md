@@ -117,10 +117,10 @@ L'application utilise READ_CALL_LOG pour acceder a l'historique des appels et en
 1. Va dans **Production** > **Creer une release**
 2. **App signing by Google Play** : Active (recommande)
 3. Upload le fichier : `app/build/outputs/bundle/release/app-release.aab`
-4. **Nom de la release** : 1.1.0
+4. **Nom de la release** : 1.2.0
 5. **Notes de version** :
 ```
-v1.1.0 - Detection phishing SMS, graphique d'activite 7 jours, tuile Quick Settings, interface en anglais. Base de donnees chiffree (SQLCipher).
+v1.2.0 - Mode Urgence Intelligent (3 appels/5min), Whitelist Services Publics, Assistant de configuration simplifié (Wizard), Mode Sommeil nocturne.
 ```
 6. Clique **"Examiner la release"** puis **"Lancer le deploiement en production"**
 

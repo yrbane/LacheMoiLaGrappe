@@ -1,0 +1,1 @@
+v1.2.0 - Smart Emergency Mode (3 calls/5min), Public Services Whitelist, Simplified Configuration Wizard, Night Sleep Mode.
