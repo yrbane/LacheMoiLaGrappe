@@ -91,6 +91,16 @@ Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/
 | Cooldown SMS | Délai entre SMS (même numéro) | 24h |
 | Template SMS | Message personnalisable | Défaut |
 
+## Sécurité & Audit (Mars 2026) 🛡️
+
+L'application a fait l'objet d'un audit de sécurité approfondi. Voici les garanties apportées :
+
+- **Chiffrement de la base de données** : Intégration de **SQLCipher (AES-256)** pour protéger l'historique des appels et les listes d'utilisateurs contre l'accès physique non autorisé.
+- **Gestion des clés (Grade Bancaire)** : La "passphrase" de la base de données est générée aléatoirement et chiffrée via le **Android Keystore matériel** (AES-256-GCM). La clé de chiffrement ne quitte jamais l'enclave sécurisée du processeur.
+- **Protection anti-abus SMS** : Logique métier stricte incluant un **cooldown de 24h** par numéro et un mode confirmation optionnel pour empêcher tout détournement de l'application à des fins de spamming.
+- **Zéro fuite de données** : Aucune permission réseau (`INTERNET`) n'est déclarée. Les secrets de signature et clés de publication sont strictement exclus du dépôt via `.gitignore`.
+- **Immunité aux injections** : Utilisation exclusive de Room (mapping objet-relationnel) sans requêtes SQL brutes, éliminant les risques d'injection SQL.
+
 ## Architecture
 
 Clean Architecture en Kotlin :
