@@ -1,6 +1,7 @@
 package fr.lachemoilagrappe.domain.usecase
 
 import fr.lachemoilagrappe.domain.model.CallAction
+import fr.lachemoilagrappe.domain.repository.CallLogRepository
 import fr.lachemoilagrappe.domain.repository.ContactsRepository
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
 import fr.lachemoilagrappe.domain.repository.UserListRepository
@@ -18,6 +19,7 @@ class DecideCallActionIntegrationTest {
     private val contactsRepository: ContactsRepository = mockk()
     private val userListRepository: UserListRepository = mockk()
     private val settingsRepository: SettingsRepository = mockk()
+    private val callLogRepository: CallLogRepository = mockk()
     private val phoneNumberHelper: PhoneNumberHelper = mockk()
     
     private lateinit var useCase: DecideCallActionUseCase
@@ -28,9 +30,10 @@ class DecideCallActionIntegrationTest {
             contactsRepository,
             userListRepository,
             settingsRepository,
+            callLogRepository,
             phoneNumberHelper
         )
-        // Default behavior: nothing in lists, unknown number, filtering ON
+        // Default behavior: nothing in lists, unknown number, filtering ON, no recent calls
         every { phoneNumberHelper.normalize(any()) } answers { it.invocation.args[0] as String }
         coEvery { userListRepository.isBlocked(any()) } returns false
         coEvery { userListRepository.isAllowed(any()) } returns false
@@ -38,6 +41,27 @@ class DecideCallActionIntegrationTest {
         coEvery { settingsRepository.getCustomTelemarketerPrefixes() } returns emptySet()
         coEvery { contactsRepository.isNumberInContacts(any()) } returns false
         coEvery { settingsRepository.getFilterUnknownEnabled() } returns true
+        coEvery { callLogRepository.getCallCountSince(any()) } returns 0
+    }
+
+    @Test
+    fun `priority 0 - emergency mode allows call if 3 attempts in 5 minutes`() = runTest {
+        val number = "0700000000"
+        coEvery { callLogRepository.getCallCountSince(any()) } returns 3
+        
+        val result = useCase(number)
+        assertEquals(CallAction.Allow, result)
+    }
+
+    @Test
+    fun `public service number is always allowed even if not in contacts`() = runTest {
+        val samu = "15"
+        val police = "17"
+        val ameli = "3646"
+        
+        assertEquals(CallAction.Allow, useCase(samu))
+        assertEquals(CallAction.Allow, useCase(police))
+        assertEquals(CallAction.Allow, useCase(ameli))
     }
 
     @Test

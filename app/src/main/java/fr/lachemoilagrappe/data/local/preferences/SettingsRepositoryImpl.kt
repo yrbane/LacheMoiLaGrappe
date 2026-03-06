@@ -26,7 +26,6 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private object Keys {
         val FILTER_UNKNOWN_ENABLED = booleanPreferencesKey("filter_unknown_enabled")
-
         val AUTO_SMS_ENABLED = booleanPreferencesKey("auto_sms_enabled")
         val SMS_CONFIRMATION_MODE = booleanPreferencesKey("sms_confirmation_mode")
         val SMS_COOLDOWN_HOURS = intPreferencesKey("sms_cooldown_hours")
@@ -36,11 +35,13 @@ class SettingsRepositoryImpl @Inject constructor(
         val CUSTOM_TELEMARKETER_PREFIXES = stringPreferencesKey("custom_telemarketer_prefixes")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val PHISHING_PROTECTION_ENABLED = booleanPreferencesKey("phishing_protection_enabled")
+        val SLEEP_MODE_ENABLED = booleanPreferencesKey("sleep_mode_enabled")
+        val SLEEP_MODE_START_TIME = stringPreferencesKey("sleep_mode_start_time")
+        val SLEEP_MODE_END_TIME = stringPreferencesKey("sleep_mode_end_time")
     }
 
     private object Defaults {
         const val FILTER_UNKNOWN_ENABLED = true
-
         const val AUTO_SMS_ENABLED = false
         const val SMS_CONFIRMATION_MODE = true
         const val SMS_COOLDOWN_HOURS = 24
@@ -48,6 +49,9 @@ class SettingsRepositoryImpl @Inject constructor(
         const val BLOCK_TELEMARKETERS_ENABLED = true
         const val BLOCK_HIDDEN_NUMBERS_ENABLED = true
         const val PHISHING_PROTECTION_ENABLED = true
+        const val SLEEP_MODE_ENABLED = false
+        const val SLEEP_MODE_START_TIME = "22:00"
+        const val SLEEP_MODE_END_TIME = "07:00"
     }
 
     override val filterUnknownEnabled: Flow<Boolean> = context.dataStore.data
@@ -83,6 +87,15 @@ class SettingsRepositoryImpl @Inject constructor(
     override val phishingProtectionEnabled: Flow<Boolean> = context.dataStore.data
         .map { it[Keys.PHISHING_PROTECTION_ENABLED] ?: Defaults.PHISHING_PROTECTION_ENABLED }
 
+    override val sleepModeEnabled: Flow<Boolean> = context.dataStore.data
+        .map { it[Keys.SLEEP_MODE_ENABLED] ?: Defaults.SLEEP_MODE_ENABLED }
+
+    override val sleepModeStartTime: Flow<String> = context.dataStore.data
+        .map { it[Keys.SLEEP_MODE_START_TIME] ?: Defaults.SLEEP_MODE_START_TIME }
+
+    override val sleepModeEndTime: Flow<String> = context.dataStore.data
+        .map { it[Keys.SLEEP_MODE_END_TIME] ?: Defaults.SLEEP_MODE_END_TIME }
+
     override suspend fun setFilterUnknownEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.FILTER_UNKNOWN_ENABLED] = enabled }
     }
@@ -115,98 +128,64 @@ class SettingsRepositoryImpl @Inject constructor(
         context.dataStore.edit { it[Keys.PHISHING_PROTECTION_ENABLED] = enabled }
     }
 
-    override suspend fun getFilterUnknownEnabled(): Boolean =
-        filterUnknownEnabled.first()
+    override suspend fun setSleepModeEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.SLEEP_MODE_ENABLED] = enabled }
+    }
 
-    override suspend fun getAutoSmsEnabled(): Boolean =
-        autoSmsEnabled.first()
+    override suspend fun setSleepModeStartTime(time: String) {
+        context.dataStore.edit { it[Keys.SLEEP_MODE_START_TIME] = time }
+    }
 
-    override suspend fun getSmsConfirmationMode(): Boolean =
-        smsConfirmationMode.first()
+    override suspend fun setSleepModeEndTime(time: String) {
+        context.dataStore.edit { it[Keys.SLEEP_MODE_END_TIME] = time }
+    }
 
-    override suspend fun getSmsCooldownHours(): Int =
-        smsCooldownHours.first()
+    override suspend fun getFilterUnknownEnabled(): Boolean = filterUnknownEnabled.first()
+    override suspend fun getAutoSmsEnabled(): Boolean = autoSmsEnabled.first()
+    override suspend fun getSmsConfirmationMode(): Boolean = smsConfirmationMode.first()
+    override suspend fun getSmsCooldownHours(): Int = smsCooldownHours.first()
+    override suspend fun getSmsTemplate(): String = smsTemplate.first()
+    override suspend fun getBlockTelemarketersEnabled(): Boolean = blockTelemarketersEnabled.first()
+    override suspend fun getBlockHiddenNumbersEnabled(): Boolean = blockHiddenNumbersEnabled.first()
+    override suspend fun getPhishingProtectionEnabled(): Boolean = phishingProtectionEnabled.first()
+    override suspend fun getSleepModeEnabled(): Boolean = sleepModeEnabled.first()
+    override suspend fun getSleepModeStartTime(): String = sleepModeStartTime.first()
+    override suspend fun getSleepModeEndTime(): String = sleepModeEndTime.first()
 
-    override suspend fun getSmsTemplate(): String =
-        smsTemplate.first()
-
-    override suspend fun getBlockTelemarketersEnabled(): Boolean =
-        blockTelemarketersEnabled.first()
-
-    override suspend fun getBlockHiddenNumbersEnabled(): Boolean =
-        blockHiddenNumbersEnabled.first()
-        
-    override suspend fun getPhishingProtectionEnabled(): Boolean =
-        phishingProtectionEnabled.first()
-
-    override suspend fun getCustomTelemarketerPrefixes(): Set<String> =
-        customTelemarketerPrefixes.first()
+    override suspend fun getCustomTelemarketerPrefixes(): Set<String> = customTelemarketerPrefixes.first()
 
     override suspend fun addCustomTelemarketerPrefix(prefix: String) {
         val normalized = normalizePrefix(prefix) ?: return
         if (!isValidPrefix(normalized)) return
-
         context.dataStore.edit { preferences ->
             val current = jsonToSet(preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] ?: "[]")
-            val updated = current + normalized
-            preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] = setToJson(updated)
+            preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] = setToJson(current + normalized)
         }
     }
 
     override suspend fun removeCustomTelemarketerPrefix(prefix: String) {
         context.dataStore.edit { preferences ->
             val current = jsonToSet(preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] ?: "[]")
-            val updated = current - prefix
-            preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] = setToJson(updated)
+            preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] = setToJson(current - prefix)
         }
     }
 
-    override suspend fun getOnboardingCompleted(): Boolean =
-        onboardingCompleted.first()
-
+    override suspend fun getOnboardingCompleted(): Boolean = onboardingCompleted.first()
     override suspend fun setOnboardingCompleted(completed: Boolean) {
         context.dataStore.edit { it[Keys.ONBOARDING_COMPLETED] = completed }
     }
 
     override suspend fun setCustomTelemarketerPrefixes(prefixes: Set<String>) {
-        val validPrefixes = prefixes.mapNotNull { normalizePrefix(it) }
-            .filter { isValidPrefix(it) }
-            .toSet()
-        context.dataStore.edit { preferences ->
-            preferences[Keys.CUSTOM_TELEMARKETER_PREFIXES] = setToJson(validPrefixes)
-        }
+        val validPrefixes = prefixes.mapNotNull { normalizePrefix(it) }.filter { isValidPrefix(it) }.toSet()
+        context.dataStore.edit { it[Keys.CUSTOM_TELEMARKETER_PREFIXES] = setToJson(validPrefixes) }
     }
 
-    /**
-     * Normalize a prefix by removing spaces.
-     */
-    private fun normalizePrefix(prefix: String): String? {
-        val normalized = prefix.replace(Regex("\\s"), "")
-        return if (normalized.isNotEmpty()) normalized else null
-    }
-
-    /**
-     * Validate a prefix: 4-5 digits only.
-     */
-    private fun isValidPrefix(prefix: String): Boolean {
-        return prefix.length in 4..5 && prefix.all { it.isDigit() }
-    }
-
-    /**
-     * Convert JSON string to Set<String>.
-     */
-    private fun jsonToSet(json: String): Set<String> {
-        return try {
-            val array = JSONArray(json)
-            (0 until array.length()).map { array.getString(it) }.toSet()
-        } catch (e: Exception) {
-            emptySet()
-        }
-    }
-
-    /**
-     * Convert Set<String> to JSON string.
-     */
+    private fun normalizePrefix(prefix: String): String? = prefix.replace(Regex("\\s"), "").ifEmpty { null }
+    private fun isValidPrefix(prefix: String): Boolean = prefix.length in 4..5 && prefix.all { it.isDigit() }
+    private fun jsonToSet(json: String): Set<String> = try {
+        val array = JSONArray(json)
+        (0 until array.length()).map { array.getString(it) }.toSet()
+    } catch (e: Exception) { emptySet() }
     private fun setToJson(set: Set<String>): String {
         val array = JSONArray()
         set.forEach { array.put(it) }

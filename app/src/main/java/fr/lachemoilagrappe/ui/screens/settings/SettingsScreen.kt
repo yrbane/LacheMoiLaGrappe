@@ -166,6 +166,26 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
+            // === SÉRÉNITÉ ===
+            SettingsSection(title = "Sérénité")
+
+            SwitchSettingsItem(
+                title = "Mode Sommeil",
+                subtitle = "Laisser passer tous les appels la nuit",
+                checked = uiState.sleepModeEnabled,
+                onCheckedChange = viewModel::setSleepModeEnabled
+            )
+
+            if (uiState.sleepModeEnabled) {
+                SettingsItem(
+                    title = "Plage horaire",
+                    subtitle = "De ${uiState.sleepModeStartTime} à ${uiState.sleepModeEndTime}",
+                    onClick = { /* Could show a TimePicker here later */ }
+                )
+            }
+
+            HorizontalDivider()
+
             // === À PROPOS ===
             SettingsSection(title = "À propos")
 

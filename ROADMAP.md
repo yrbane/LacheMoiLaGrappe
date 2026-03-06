@@ -7,49 +7,31 @@ Cette roadmap définit les phases de développement de **LacheMoiLaGrappe**, de 
 ---
 
 ## Version 1.0.0 - Release Stable [COMPLETE]
-
-- [x] Filtrage appels (Contacts vs Inconnus)
-- [x] Blocage démarcheurs ARCEP & Numéros masqués
-- [x] SMS d'identité automatique (Anti-abus 24h)
-- [x] Chiffrement SQLCipher + Android Keystore
-- [x] UI Compose (Home, Historique, Paramètres, Onboarding)
-- [x] Widget Home Screen & Icône adaptative
-- [x] Zéro permission INTERNET
-
+...
 ---
 
 ## Version 1.1.0 - Phishing, Stats & i18n [COMPLETE]
-
-- [x] **Détection Phishing SMS** : Analyse locale des mots-clés (CPF, colis, ANTAI...).
-- [x] **Historique Phishing** : Onglet dédié avec badge de notifications.
-- [x] **Graphique d'activité** : Statistiques sur 7 jours en page d'accueil.
-- [x] **Quick Settings Tile** : Activer/Désactiver le bouclier en un clic.
-- [x] **Internationalisation** : Support complet du Français et de l'Anglais.
-- [x] **Accessibilité** : Amélioration TalkBack et étiquettes sémantiques.
-- [x] **Documentation** : Rédaction Privacy Policy et Store Listing.
-
+...
 ---
 
-## Version 1.2.0 - La Sérénité Familiale [EN COURS]
+## Version 1.2.0 - La Sérénité Familiale [COMPLETE]
 
 **Objectif** : Rendre l'application infaillible et accessible à tous, même aux enfants et seniors.
 
-- [ ] **Mode Urgence Intelligent** : Laisser passer l'appel si un inconnu appelle 3 fois en moins de 5 min.
-- [ ] **Whitelist Services Publics** : Pré-embarquer les numéros d'urgence et administrations.
-- [ ] **Wizard de Configuration** : Assistant de premier lancement ultra-simplifié.
-- [ ] **Mode Sommeil** : Programmation horaire du filtrage.
-- [ ] **Tests UI & Intégration** : Couverture complète des flux critiques.
+- [x] **Mode Urgence Intelligent** : Laisser passer l'appel si un inconnu appelle 3 fois en moins de 5 min.
+- [x] **Whitelist Services Publics** : Pré-embarquer les numéros d'urgence et administrations.
+- [x] **Wizard de Configuration** : Assistant de premier lancement ultra-simplifié (Questions Oui/Non).
+- [x] **Mode Sommeil** : Désactivation automatique du filtrage la nuit pour une sérénité totale.
+- [x] **Tests de Robustesse** : Validation de la hiérarchie des décisions par tests d'intégration.
 
 ---
 
-## Indicateurs de progression
+## Version 1.3.0 - Intelligence & Automatisme [PLANIFIÉE]
 
-| Milestone | Status | Progress |
-|-----------|--------|----------|
-| v1.0.0 Stable | Terminée | 100% |
-| v1.1.0 Phishing/Stats | Terminée | 100% |
-| v1.2.0 Sérénité | Planifiée | 10% |
+- [ ] **Suggestions Allowlist** : Proposer d'autoriser un numéro si on le rappelle souvent.
+- [ ] **Sauvegarde chiffrée** : Export/Import sécurisé de la configuration.
+- [ ] **Interface Wear OS** : Contrôler le bouclier depuis sa montre.
 
 ---
 
-*LacheMoiLaGrappe - Reprenez le contrôle de votre téléphone.*
+*LacheMoiLaGrappe - Parce que je préfère avoir au bout du fil les gens qui m'aiment moi, pas ceux qui aiment mon porte-monnaie.*

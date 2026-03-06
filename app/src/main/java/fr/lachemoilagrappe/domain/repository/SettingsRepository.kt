@@ -13,6 +13,9 @@ interface SettingsRepository {
     val customTelemarketerPrefixes: Flow<Set<String>>
     val onboardingCompleted: Flow<Boolean>
     val phishingProtectionEnabled: Flow<Boolean>
+    val sleepModeEnabled: Flow<Boolean>
+    val sleepModeStartTime: Flow<String>
+    val sleepModeEndTime: Flow<String>
 
     suspend fun setFilterUnknownEnabled(enabled: Boolean)
     suspend fun setAutoSmsEnabled(enabled: Boolean)
@@ -22,6 +25,9 @@ interface SettingsRepository {
     suspend fun setBlockTelemarketersEnabled(enabled: Boolean)
     suspend fun setBlockHiddenNumbersEnabled(enabled: Boolean)
     suspend fun setPhishingProtectionEnabled(enabled: Boolean)
+    suspend fun setSleepModeEnabled(enabled: Boolean)
+    suspend fun setSleepModeStartTime(time: String)
+    suspend fun setSleepModeEndTime(time: String)
 
     suspend fun getFilterUnknownEnabled(): Boolean
     suspend fun getAutoSmsEnabled(): Boolean
@@ -31,6 +37,9 @@ interface SettingsRepository {
     suspend fun getBlockTelemarketersEnabled(): Boolean
     suspend fun getBlockHiddenNumbersEnabled(): Boolean
     suspend fun getPhishingProtectionEnabled(): Boolean
+    suspend fun getSleepModeEnabled(): Boolean
+    suspend fun getSleepModeStartTime(): String
+    suspend fun getSleepModeEndTime(): String
 
     suspend fun getCustomTelemarketerPrefixes(): Set<String>
     suspend fun addCustomTelemarketerPrefix(prefix: String)

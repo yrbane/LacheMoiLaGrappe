@@ -22,7 +22,10 @@ data class SettingsUiState(
     val smsTemplate: String = "",
     val customTelemarketerPrefixes: Set<String> = emptySet(),
     val arcepPrefixes: Set<String> = DecideCallActionUseCase.ARCEP_PREFIXES,
-    val phishingProtectionEnabled: Boolean = true
+    val phishingProtectionEnabled: Boolean = true,
+    val sleepModeEnabled: Boolean = false,
+    val sleepModeStartTime: String = "22:00",
+    val sleepModeEndTime: String = "07:00"
 )
 
 @HiltViewModel
@@ -40,7 +43,10 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.smsCooldownHours,
         settingsRepository.smsTemplate,
         settingsRepository.customTelemarketerPrefixes,
-        settingsRepository.phishingProtectionEnabled
+        settingsRepository.phishingProtectionEnabled,
+        settingsRepository.sleepModeEnabled,
+        settingsRepository.sleepModeStartTime,
+        settingsRepository.sleepModeEndTime
     ) { values ->
         SettingsUiState(
             filterUnknownEnabled = values[0] as Boolean,
@@ -51,9 +57,13 @@ class SettingsViewModel @Inject constructor(
             smsCooldownHours = values[5] as Int,
             smsTemplate = values[6] as String,
             customTelemarketerPrefixes = values[7] as Set<String>,
-            phishingProtectionEnabled = values[8] as Boolean
+            phishingProtectionEnabled = values[8] as Boolean,
+            sleepModeEnabled = values[9] as Boolean,
+            sleepModeStartTime = values[10] as String,
+            sleepModeEndTime = values[11] as String
         )
-    }.stateIn(
+    }
+.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SettingsUiState()
@@ -62,6 +72,24 @@ class SettingsViewModel @Inject constructor(
     fun setPhishingProtectionEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setPhishingProtectionEnabled(enabled)
+        }
+    }
+
+    fun setSleepModeEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setSleepModeEnabled(enabled)
+        }
+    }
+
+    fun setSleepModeStartTime(time: String) {
+        viewModelScope.launch {
+            settingsRepository.setSleepModeStartTime(time)
+        }
+    }
+
+    fun setSleepModeEndTime(time: String) {
+        viewModelScope.launch {
+            settingsRepository.setSleepModeEndTime(time)
         }
     }
 
