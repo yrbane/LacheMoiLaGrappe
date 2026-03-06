@@ -1,0 +1,1 @@
+v1.1.0 - SMS phishing detection, 7-day activity chart, Quick Settings tile, English UI. Encrypted database (SQLCipher).

@@ -23,10 +23,13 @@ LacheMoiLaGrappe est un **bouclier anti-emmerdeurs** pour votre téléphone Andr
 - **SMS automatique** : Un message poli est envoyé à l'appelant inconnu pour lui demander de s'identifier. Parce qu'on n'est pas des sauvages non plus
 - **Allowlist / Blocklist** : Écran dédié pour gérer vos listes, avec ajout rapide et swipe-to-delete
 - **Préfixes personnalisés** : Vous repérez un nouveau schéma de démarchage ? Ajoutez le préfixe vous-même
+- **Détection phishing SMS** : Analyse les SMS entrants pour détecter les tentatives de phishing (CPF, colis, Chronopost, ANTAI...). Historique dédié avec notifications
 
 ## Fonctionnalités UX
 
 - **Onboarding** : Écran d'accueil en 3 pages pour guider la configuration initiale et les permissions
+- **Graphique d'activité** : Visualisez les 7 derniers jours d'appels bloqués sur l'écran d'accueil
+- **Quick Settings Tile** : Activez/désactivez le filtrage directement depuis le panneau de réglages rapides
 - **Swipe-to-action** : Dans l'historique, glissez à droite pour autoriser, à gauche pour bloquer
 - **Pull-to-refresh** : Tirez vers le bas pour rafraîchir l'historique
 - **Recherche** : Cherchez dans l'historique par numéro ou nom de contact
@@ -36,6 +39,7 @@ LacheMoiLaGrappe est un **bouclier anti-emmerdeurs** pour votre téléphone Andr
 - **Retour haptique** : Vibration de confirmation sur les actions autoriser/bloquer
 - **Widget** : Widget home screen affichant le nombre d'appels bloqués aujourd'hui
 - **Icône thématique** : Icône monochrome adaptative pour Android 13+
+- **Internationalisation** : Interface disponible en français et en anglais
 
 ## Votre téléphone, vos règles
 
@@ -77,6 +81,7 @@ Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/
   - `READ_CONTACTS` : Pour laisser passer vos vrais contacts
   - `READ_PHONE_STATE` / `READ_CALL_LOG` : Pour intercepter les appels
   - `SEND_SMS` (optionnel) : Pour répondre poliment aux inconnus
+  - `RECEIVE_SMS` (optionnel) : Pour détecter les SMS de phishing
   - `POST_NOTIFICATIONS` : Pour vous informer des appels bloqués
 
 ## Paramètres
@@ -90,6 +95,7 @@ Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/
 | Mode confirmation | Valider avant envoi SMS | ON |
 | Cooldown SMS | Délai entre SMS (même numéro) | 24h |
 | Template SMS | Message personnalisable | Défaut |
+| Détection phishing | Analyser les SMS entrants | OFF |
 
 ## Sécurité & Audit (Mars 2026) 🛡️
 
@@ -120,9 +126,11 @@ fr.lachemoilagrappe/
 │   └── repository/         # Implémentations
 ├── service/
 │   ├── CallFilterScreeningService.kt
+│   ├── CallFilterTileService.kt  # Quick Settings tile
 │   ├── NotificationHelper.kt
 │   ├── ActionReceiver.kt
-│   └── SmsService.kt
+│   ├── SmsService.kt
+│   └── SmsReceiver.kt           # Phishing SMS detection
 ├── widget/                 # Widget home screen
 ├── worker/                 # WorkManager jobs
 ├── ui/

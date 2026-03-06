@@ -1,0 +1,32 @@
+Categories:
+  - Phone & SMS
+License: MIT
+AuthorName: yrbane
+AuthorEmail: ''
+AuthorWebSite: https://yrbane.github.io/
+SourceCode: https://github.com/yrbane/LacheMoiLaGrappe
+IssueTracker: https://github.com/yrbane/LacheMoiLaGrappe/issues
+Donate: https://paypal.me/sphilippe1209
+Bitcoin: bc1qgs7qk2zstyu4c6vs4m60757zh9tr0umznlxf5k
+
+AutoName: LacheMoiLaGrappe
+
+RepoType: git
+Repo: https://github.com/yrbane/LacheMoiLaGrappe.git
+
+Builds:
+  - versionName: 1.1.0
+    versionCode: 2
+    commit: v1.1.0
+    subdir: app
+    sudo:
+      - apt-get update
+      - apt-get install -y openjdk-17-jdk-headless
+      - update-java-alternatives -a
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.1.0
+CurrentVersionCode: 2

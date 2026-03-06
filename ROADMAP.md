@@ -109,22 +109,33 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 
 ## Versions futures (Post 1.0)
 
-### Version 1.1.0 - Ameliorations
+### Version 1.1.0 - Phishing, Stats & i18n [COMPLETE]
+
+- [x] Detection phishing SMS (mots-cles : CPF, colis, Chronopost, ANTAI, carte vitale...)
+- [x] SmsReceiver + AnalyzeSmsContentUseCase + PhishingSmsDao
+- [x] Historique phishing avec onglets dans l'ecran History
+- [x] Graphique d'activite des 7 derniers jours sur l'ecran d'accueil
+- [x] Quick Settings Tile (activation/desactivation du filtrage)
+- [x] Internationalisation : interface en anglais (values-en/strings.xml)
+- [x] Chiffrement SQLCipher + Android Keystore
+- [x] Suppression feature spam + permission INTERNET
+- [x] Structure fastlane + licence MIT (conformite F-Droid)
+
+### Version 1.2.0 - Ameliorations
 
 - [ ] Theme clair / sombre
-- [ ] Ecran statistiques detaillees
 - [ ] Accessibilite (TalkBack, grands textes)
 - [ ] Backup/Restore Google Drive
 - [ ] Tests d'integration et UI
 
-### Version 1.2.0 - Intelligence
+### Version 1.3.0 - Intelligence
 
 - [ ] Apprentissage des habitudes utilisateur
 - [ ] Suggestions automatiques (allowlist)
 - [ ] Analyse des patterns d'appels
 - [ ] Plages horaires de filtrage
 
-### Version 1.3.0 - Integrations
+### Version 1.4.0 - Integrations
 
 - [ ] API externe pour validation HLR (mobile vs fixe)
 - [ ] Application Wear OS companion
@@ -143,3 +154,4 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 | 0.3.2 Numeros masques | Complete | 100% |
 | 0.3.3 Tests/Debug | Complete | 100% |
 | 1.0.0 Release | Complete | 100% |
+| 1.1.0 Phishing/Stats/i18n | Complete | 100% |

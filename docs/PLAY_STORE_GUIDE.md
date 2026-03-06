@@ -97,6 +97,11 @@ Google va demander une justification. Reponds :
 L'application utilise SEND_SMS pour envoyer un SMS de reponse automatique aux appelants inconnus, uniquement si l'utilisateur active explicitement cette fonctionnalite (opt-in). Le SMS demande a l'appelant de s'identifier. L'utilisateur peut configurer un mode confirmation qui demande validation avant chaque envoi. Un cooldown empeche l'envoi repete au meme numero.
 ```
 
+### RECEIVE_SMS
+```
+L'application utilise RECEIVE_SMS pour analyser les SMS entrants et detecter les tentatives de phishing (faux colis, fausses amendes, arnaques CPF, etc.). Cette fonctionnalite est optionnelle et desactivee par defaut (opt-in). L'analyse est effectuee localement sur l'appareil sans aucune transmission de donnees.
+```
+
 ### CallScreeningService (BIND_SCREENING_SERVICE)
 ```
 L'application est un filtreur d'appels qui utilise CallScreeningService pour intercepter et filtrer les appels entrants non souhaites (demarcheurs, spams, numeros inconnus). C'est la fonctionnalite principale de l'application.
@@ -112,10 +117,10 @@ L'application utilise READ_CALL_LOG pour acceder a l'historique des appels et en
 1. Va dans **Production** > **Creer une release**
 2. **App signing by Google Play** : Active (recommande)
 3. Upload le fichier : `app/build/outputs/bundle/release/app-release.aab`
-4. **Nom de la release** : 1.0.0
+4. **Nom de la release** : 1.1.0
 5. **Notes de version** :
 ```
-Fini les demarcheurs. Filtrage auto des appels indesirables, spams et numeros masques. Votre diner est sauve.
+v1.1.0 - Detection phishing SMS, graphique d'activite 7 jours, tuile Quick Settings, interface en anglais. Base de donnees chiffree (SQLCipher).
 ```
 6. Clique **"Examiner la release"** puis **"Lancer le deploiement en production"**
 

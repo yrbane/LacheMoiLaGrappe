@@ -1,0 +1,1 @@
+v1.1.0 - Detection phishing SMS, graphique d'activite 7 jours, tuile Quick Settings, interface en anglais. Base de donnees chiffree (SQLCipher).

@@ -12,14 +12,18 @@ SMART FILTERING:
 - Auto SMS: Polite reply to unknown callers asking them to identify themselves (opt-in)
 - Allowlist / Blocklist: Dedicated screen to manage your lists
 - Custom prefixes: Add your own prefixes to block
+- SMS phishing detection: Detects fraudulent SMS (CPF scams, fake deliveries, ANTAI...)
 
 POLISHED UX:
 
 - Guided onboarding for first-time setup
+- 7-day activity chart on the home screen
+- Quick Settings Tile to toggle filtering with one tap
 - History with search, swipe-to-action and CSV export
 - Home screen widget to track blocked calls
 - Grouped and non-intrusive notifications
 - Haptic feedback on actions
+- Available in French and English
 
 PRIVACY FIRST:
 

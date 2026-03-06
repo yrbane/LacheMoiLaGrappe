@@ -194,11 +194,12 @@ fr.lachemoilagrappe/
 
 ## Phase 6 : Notifications [COMPLETE]
 
-- [x] Canaux de notification (rejete, SMS)
+- [x] Canaux de notification (rejete, SMS, phishing)
 - [x] Regroupement des notifications (setGroup)
 - [x] Notification resumee (summary)
 - [x] Actions rapides depuis notification (autoriser/bloquer)
 - [x] Notification confirmation SMS
+- [x] Notification phishing SMS detecte
 
 ---
 
@@ -212,7 +213,20 @@ fr.lachemoilagrappe/
 
 ---
 
-## Phase 8 : Publication [COMPLETE]
+## Phase 8 : v1.1.0 - Phishing, Stats & i18n [COMPLETE]
+
+- [x] Detection phishing SMS (SmsReceiver + AnalyzeSmsContentUseCase)
+- [x] PhishingSmsEntry + PhishingSmsDao (Room, migration 2→3)
+- [x] Historique phishing avec onglets dans HistoryScreen
+- [x] Graphique d'activite 7 jours (StatsChart sur HomeScreen)
+- [x] Quick Settings Tile (CallFilterTileService)
+- [x] Internationalisation anglais (values-en/strings.xml)
+- [x] Permission RECEIVE_SMS
+- [x] AnalyzeSmsContentUseCaseTest
+
+---
+
+## Phase 9 : Publication [COMPLETE]
 
 - [x] Namespace fr.lachemoilagrappe
 - [x] Keystore de release
@@ -227,20 +241,21 @@ fr.lachemoilagrappe/
 
 ---
 
-## Phase 9 : Tests [PARTIEL]
+## Phase 10 : Tests [PARTIEL]
 
-### 9.1 Tests unitaires [COMPLETE]
+### 10.1 Tests unitaires [COMPLETE]
 
 - [x] DecideCallActionUseCaseTest (20+ tests)
 - [x] ShouldSendSmsUseCaseTest (15+ tests)
+- [x] AnalyzeSmsContentUseCaseTest
 
-### 9.2 Tests d'integration [A FAIRE]
+### 10.2 Tests d'integration [A FAIRE]
 
 - [ ] Room DAOs avec base in-memory
 - [ ] Repositories avec faux contacts
 - [ ] WorkManager avec TestDriver
 
-### 9.3 Tests UI [A FAIRE]
+### 10.3 Tests UI [A FAIRE]
 
 - [ ] Compose UI tests avec ComposeTestRule
 - [ ] Navigation tests

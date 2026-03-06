@@ -25,6 +25,7 @@
         <li><strong>Pr&eacute;f&eacute;rences utilisateur</strong> : param&egrave;tres de filtrage, template SMS</li>
         <li><strong>Listes utilisateur</strong> : num&eacute;ros autoris&eacute;s et bloqu&eacute;s</li>
         <li><strong>Historique des SMS envoy&eacute;s</strong> : si la fonctionnalit&eacute; SMS est activ&eacute;e</li>
+        <li><strong>SMS suspects d&eacute;tect&eacute;s</strong> : si la d&eacute;tection phishing est activ&eacute;e (num&eacute;ro, contenu, mot-cl&eacute; d&eacute;tect&eacute;)</li>
     </ul>
 
     <h2>Permissions utilis&eacute;es</h2>
@@ -32,7 +33,8 @@
         <li><strong>READ_CONTACTS</strong> : pour identifier les appelants connus et laisser passer leurs appels</li>
         <li><strong>READ_PHONE_STATE / READ_CALL_LOG</strong> : pour filtrer les appels entrants</li>
         <li><strong>SEND_SMS</strong> (optionnel) : pour envoyer un SMS de r&eacute;ponse automatique aux appelants inconnus, uniquement si vous activez cette fonctionnalit&eacute;</li>
-        <li><strong>POST_NOTIFICATIONS</strong> : pour vous informer des appels rejet&eacute;s</li>
+        <li><strong>RECEIVE_SMS</strong> (optionnel) : pour analyser les SMS entrants et d&eacute;tecter les tentatives de phishing, uniquement si vous activez cette fonctionnalit&eacute;</li>
+        <li><strong>POST_NOTIFICATIONS</strong> : pour vous informer des appels rejet&eacute;s et des SMS suspects</li>
     </ul>
 
     <h2>Partage de donn&eacute;es</h2>

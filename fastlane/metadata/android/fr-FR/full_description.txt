@@ -12,14 +12,18 @@ FILTRAGE INTELLIGENT :
 - SMS automatique : Reponse polie aux inconnus pour demander leur identite (opt-in)
 - Allowlist / Blocklist : Ecran dedie pour gerer vos listes
 - Prefixes personnalises : Ajoutez vos propres prefixes a bloquer
+- Detection phishing SMS : Detecte les SMS frauduleux (CPF, colis, Chronopost, ANTAI...)
 
 UX SOIGNEE :
 
 - Onboarding guide pour la premiere utilisation
+- Graphique d'activite sur les 7 derniers jours
+- Quick Settings Tile pour activer/desactiver le filtrage d'un tap
 - Historique avec recherche, swipe-to-action et export CSV
 - Widget home screen pour suivre les appels bloques
 - Notifications groupees et non intrusives
 - Retour haptique sur les actions
+- Interface en francais et en anglais
 
 RESPECT DE LA VIE PRIVEE :
 
