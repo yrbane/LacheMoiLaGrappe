@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CallFilter"
+rootProject.name = "LacheMoiLaGrappe"
 include(":app")

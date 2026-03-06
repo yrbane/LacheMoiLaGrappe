@@ -19,7 +19,7 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystoreFile = file("../keystore/callfilter-release.jks")
+            val keystoreFile = file("../keystore/lachemoilagrappe-release.jks")
             if (keystoreFile.exists()) {
                 storeFile = keystoreFile
                 storePassword = keystoreProperties["RELEASE_STORE_PASSWORD"] as? String ?: ""

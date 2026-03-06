@@ -1,4 +1,4 @@
-# CallFilter ProGuard Rules
+# LacheMoiLaGrappe ProGuard Rules
 
 # Keep Room entities and DAOs
 -keep class fr.lachemoilagrappe.data.local.db.entity.** { *; }
@@ -28,7 +28,7 @@
 -keepclassmembers enum fr.lachemoilagrappe.domain.model.** { *; }
 
 # Keep CallScreeningService
--keep class fr.lachemoilagrappe.service.CallFilterScreeningService { *; }
+-keep class fr.lachemoilagrappe.service.LacheMoiLaGrappeScreeningService { *; }
 -keep class fr.lachemoilagrappe.service.ActionReceiver { *; }
 
 # Keep WorkManager workers

@@ -21,7 +21,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CallFilterScreeningService : CallScreeningService() {
+class LacheMoiLaGrappeScreeningService : CallScreeningService() {
 
     @Inject
     lateinit var decideCallActionUseCase: DecideCallActionUseCase
@@ -42,7 +42,7 @@ class CallFilterScreeningService : CallScreeningService() {
     lateinit var settingsRepository: SettingsRepository
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Timber.e(throwable, "Uncaught exception in CallFilterScreeningService")
+        Timber.e(throwable, "Uncaught exception in LacheMoiLaGrappeScreeningService")
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO + exceptionHandler)
@@ -50,7 +50,7 @@ class CallFilterScreeningService : CallScreeningService() {
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()
-        Timber.d("CallFilterScreeningService destroyed")
+        Timber.d("LacheMoiLaGrappeScreeningService destroyed")
     }
 
     override fun onScreenCall(callDetails: Call.Details) {

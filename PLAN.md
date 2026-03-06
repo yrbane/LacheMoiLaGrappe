@@ -12,7 +12,7 @@ Ce document détaille l'architecture et les phases techniques de **LacheMoiLaGra
 - [x] **Persistance** : Migration Room v3 avec table `phishing_sms`.
 - [x] **UI History** : Ajout d'onglets pour séparer Appels et SMS.
 - [x] **UI Home** : Composant `StatsChart` pour visualisation sur 7 jours.
-- [x] **Système** : `CallFilterTileService` pour la tuile de réglages rapides.
+- [x] **Système** : `LacheMoiLaGrappeTileService` pour la tuile de réglages rapides.
 - [x] **i18n** : Extraction des strings et traduction EN.
 
 ---

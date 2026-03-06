@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
 import fr.lachemoilagrappe.ui.navigation.NavGraph
-import fr.lachemoilagrappe.ui.theme.CallFilterTheme
+import fr.lachemoilagrappe.ui.theme.LacheMoiLaGrappeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            CallFilterTheme {
+            LacheMoiLaGrappeTheme {
                 val navController = rememberNavController()
                 NavGraph(
                     navController = navController,

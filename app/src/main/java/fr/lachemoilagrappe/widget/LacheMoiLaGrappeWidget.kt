@@ -9,7 +9,7 @@ import android.content.Intent
 import android.widget.RemoteViews
 import androidx.room.Room
 import fr.lachemoilagrappe.R
-import fr.lachemoilagrappe.data.local.db.CallFilterDatabase
+import fr.lachemoilagrappe.data.local.db.LacheMoiLaGrappeDatabase
 import fr.lachemoilagrappe.domain.model.CallDecision
 import fr.lachemoilagrappe.ui.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class CallFilterWidget : AppWidgetProvider() {
+class LacheMoiLaGrappeWidget : AppWidgetProvider() {
 
     companion object {
         const val ACTION_REFRESH = "fr.lachemoilagrappe.widget.ACTION_REFRESH"
@@ -27,12 +27,12 @@ class CallFilterWidget : AppWidgetProvider() {
          * Trigger an update of all widget instances from anywhere in the app.
          */
         fun requestUpdate(context: Context) {
-            val intent = Intent(context, CallFilterWidget::class.java).apply {
+            val intent = Intent(context, LacheMoiLaGrappeWidget::class.java).apply {
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             }
             val widgetManager = AppWidgetManager.getInstance(context)
             val ids = widgetManager.getAppWidgetIds(
-                ComponentName(context, CallFilterWidget::class.java)
+                ComponentName(context, LacheMoiLaGrappeWidget::class.java)
             )
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             context.sendBroadcast(intent)
@@ -57,7 +57,7 @@ class CallFilterWidget : AppWidgetProvider() {
         if (intent.action == ACTION_REFRESH) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val ids = appWidgetManager.getAppWidgetIds(
-                ComponentName(context, CallFilterWidget::class.java)
+                ComponentName(context, LacheMoiLaGrappeWidget::class.java)
             )
             onUpdate(context, appWidgetManager, ids)
         }
@@ -98,8 +98,8 @@ class CallFilterWidget : AppWidgetProvider() {
             try {
                 val db = Room.databaseBuilder(
                     context.applicationContext,
-                    CallFilterDatabase::class.java,
-                    CallFilterDatabase.DATABASE_NAME
+                    LacheMoiLaGrappeDatabase::class.java,
+                    LacheMoiLaGrappeDatabase.DATABASE_NAME
                 ).build()
 
                 val dao = db.callLogDao()

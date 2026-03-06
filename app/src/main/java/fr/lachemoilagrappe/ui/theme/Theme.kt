@@ -42,7 +42,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun CallFilterTheme(
+fun LacheMoiLaGrappeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit

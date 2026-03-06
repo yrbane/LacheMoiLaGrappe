@@ -60,6 +60,10 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -168,12 +172,21 @@ fun HistoryScreen(
                     androidx.compose.material3.Tab(
                         selected = selectedTab == HistoryTab.CALLS,
                         onClick = { viewModel.selectTab(HistoryTab.CALLS) },
-                        text = { Text("Appels") }
+                        text = { Text("Appels") },
+                        modifier = Modifier.semantics { 
+                            contentDescription = "Historique des appels"
+                            role = Role.Tab 
+                        }
                     )
                     androidx.compose.material3.Tab(
                         selected = selectedTab == HistoryTab.SMS,
                         onClick = { viewModel.selectTab(HistoryTab.SMS) },
-                        text = {
+                        modifier = Modifier.semantics { 
+                            contentDescription = "Historique des SMS suspects"
+                            role = Role.Tab 
+                        },
+                        text = { 
+
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Phishing")
                                 val unreadCount = smsHistory.count { !it.isRead }
@@ -407,7 +420,13 @@ private fun SwipeableCallLogItem(
                     .fillMaxSize()
                     .clip(RoundedCornerShape(12.dp))
                     .background(color)
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 20.dp)
+                    .semantics { 
+                        contentDescription = if (direction == SwipeToDismissBoxValue.StartToEnd) 
+                            "Autoriser le numéro ${entry.phoneNumber}" 
+                        else 
+                            "Bloquer définitivement le numéro ${entry.phoneNumber}"
+                    },
                 contentAlignment = alignment
             ) {
                 icon?.let {

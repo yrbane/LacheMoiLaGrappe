@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CallFilterTileService : TileService() {
+class LacheMoiLaGrappeTileService : TileService() {
 
     @Inject
     lateinit var settingsRepository: SettingsRepository

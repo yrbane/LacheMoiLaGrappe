@@ -23,7 +23,7 @@ import fr.lachemoilagrappe.data.local.db.entity.UserListEntry
     exportSchema = true
 )
 @TypeConverters(Converters::class)
-abstract class CallFilterDatabase : RoomDatabase() {
+abstract class LacheMoiLaGrappeDatabase : RoomDatabase() {
 
     abstract fun callLogDao(): CallLogDao
     abstract fun userListDao(): UserListDao

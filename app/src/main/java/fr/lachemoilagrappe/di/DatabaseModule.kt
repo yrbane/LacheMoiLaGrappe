@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import fr.lachemoilagrappe.data.local.db.CallFilterDatabase
+import fr.lachemoilagrappe.data.local.db.LacheMoiLaGrappeDatabase
 import fr.lachemoilagrappe.data.local.db.dao.CallLogDao
 import fr.lachemoilagrappe.data.local.db.dao.PhishingSmsDao
 import fr.lachemoilagrappe.data.local.db.dao.SmsLogDao
@@ -47,14 +47,14 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): CallFilterDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): LacheMoiLaGrappeDatabase {
         val passphrase = DatabaseKeyHelper.getPassphrase(context)
         val factory = SupportOpenHelperFactory(passphrase)
 
         return Room.databaseBuilder(
             context,
-            CallFilterDatabase::class.java,
-            CallFilterDatabase.DATABASE_NAME
+            LacheMoiLaGrappeDatabase::class.java,
+            LacheMoiLaGrappeDatabase.DATABASE_NAME
         )
             .openHelperFactory(factory)
             .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
@@ -62,22 +62,22 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideCallLogDao(database: CallFilterDatabase): CallLogDao {
+    fun provideCallLogDao(database: LacheMoiLaGrappeDatabase): CallLogDao {
         return database.callLogDao()
     }
 
     @Provides
-    fun provideUserListDao(database: CallFilterDatabase): UserListDao {
+    fun provideUserListDao(database: LacheMoiLaGrappeDatabase): UserListDao {
         return database.userListDao()
     }
 
     @Provides
-    fun provideSmsLogDao(database: CallFilterDatabase): SmsLogDao {
+    fun provideSmsLogDao(database: LacheMoiLaGrappeDatabase): SmsLogDao {
         return database.smsLogDao()
     }
 
     @Provides
-    fun providePhishingSmsDao(database: CallFilterDatabase): PhishingSmsDao {
+    fun providePhishingSmsDao(database: LacheMoiLaGrappeDatabase): PhishingSmsDao {
         return database.phishingSmsDao()
     }
 }

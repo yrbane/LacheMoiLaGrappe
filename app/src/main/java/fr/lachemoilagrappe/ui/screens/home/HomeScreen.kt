@@ -24,12 +24,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PhoneDisabled
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -56,12 +56,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import fr.lachemoilagrappe.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToHistory: () -> Unit,
@@ -80,6 +81,36 @@ fun HomeScreen(
         isScreeningEnabled = checkScreeningRole(context)
     }
 
+    HomeScreenContent(
+        uiState = uiState,
+        isScreeningEnabled = isScreeningEnabled,
+        onActivate = {
+            requestScreeningRole(context) { intent ->
+                roleRequestLauncher.launch(intent)
+            }
+        },
+        onNavigateToHistory = onNavigateToHistory,
+        onNavigateToSettings = onNavigateToSettings,
+        onNavigateToUserLists = onNavigateToUserLists,
+        onNavigateToDebug = onNavigateToDebug,
+        onFilterUnknownChanged = viewModel::setFilterUnknownEnabled,
+        onAutoSmsChanged = viewModel::setAutoSmsEnabled
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    uiState: HomeUiState,
+    isScreeningEnabled: Boolean,
+    onActivate: () -> Unit,
+    onNavigateToHistory: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToUserLists: () -> Unit,
+    onNavigateToDebug: (() -> Unit)? = null,
+    onFilterUnknownChanged: (Boolean) -> Unit,
+    onAutoSmsChanged: (Boolean) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -109,25 +140,27 @@ fun HomeScreen(
         ) {
             // Warning if not enabled as call screening service
             if (!isScreeningEnabled) {
-                ActivationCard(
-                    onActivate = {
-                        requestScreeningRole(context) { intent ->
-                            roleRequestLauncher.launch(intent)
-                        }
-                    }
-                )
+                ActivationCard(onActivate = onActivate)
             }
 
             // Hero Stats Card
             StatsCard(
                 rejectedToday = uiState.todayRejectedCount,
                 totalBlocked = uiState.totalBlockedCount,
-                isActive = isScreeningEnabled
+                isActive = isScreeningEnabled,
+                modifier = Modifier.semantics { 
+                    contentDescription = "Statistiques d'appels : ${uiState.todayRejectedCount} filtrés aujourd'hui, ${uiState.totalBlockedCount} au total."
+                }
             )
 
             // Blocked Stats Chart (Last 7 days)
             if (uiState.blockedStats.isNotEmpty()) {
-                StatsChart(stats = uiState.blockedStats)
+                StatsChart(
+                    stats = uiState.blockedStats,
+                    modifier = Modifier.semantics { 
+                        contentDescription = "Graphique de l'activité des 7 derniers jours."
+                    }
+                )
             }
 
             // Quick toggles with icons
@@ -136,7 +169,7 @@ fun HomeScreen(
                 title = stringResource(R.string.filter_unknown_calls),
                 description = stringResource(R.string.filter_unknown_calls_desc),
                 checked = uiState.filterUnknownEnabled,
-                onCheckedChange = viewModel::setFilterUnknownEnabled,
+                onCheckedChange = onFilterUnknownChanged,
                 enabled = isScreeningEnabled
             )
 
@@ -145,7 +178,7 @@ fun HomeScreen(
                 title = stringResource(R.string.auto_sms),
                 description = stringResource(R.string.auto_sms_desc),
                 checked = uiState.autoSmsEnabled,
-                onCheckedChange = viewModel::setAutoSmsEnabled,
+                onCheckedChange = onAutoSmsChanged,
                 enabled = isScreeningEnabled
             )
 
@@ -192,14 +225,17 @@ fun HomeScreen(
 }
 
 @Composable
-private fun StatsChart(stats: Map<Long, Int>) {
+private fun StatsChart(
+    stats: Map<Long, Int>,
+    modifier: Modifier = Modifier
+) {
     val maxVal = stats.values.maxOrNull()?.coerceAtLeast(1) ?: 1
     val primaryColor = MaterialTheme.colorScheme.primary
     val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
     val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -315,10 +351,11 @@ private fun ActivationCard(onActivate: () -> Unit) {
 private fun StatsCard(
     rejectedToday: Int,
     totalBlocked: Int,
-    isActive: Boolean
+    isActive: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isActive)
                 MaterialTheme.colorScheme.primaryContainer
