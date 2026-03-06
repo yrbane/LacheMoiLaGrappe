@@ -26,7 +26,6 @@ class LogCallEventUseCase @Inject constructor(
         val decision = when (action) {
             is CallAction.Allow -> CallDecision.ALLOWED
             is CallAction.Reject -> CallDecision.REJECTED
-            is CallAction.RejectAsSpam -> CallDecision.REJECTED_SPAM
             is CallAction.RejectAsTelemarketer -> CallDecision.REJECTED_TELEMARKETER
             is CallAction.RejectAsHidden -> CallDecision.REJECTED_HIDDEN
             is CallAction.Block -> CallDecision.BLOCKED
@@ -35,7 +34,6 @@ class LogCallEventUseCase @Inject constructor(
         val reason = when (action) {
             is CallAction.Allow -> if (contactName != null) "contact" else "allowlist"
             is CallAction.Reject -> "unknown"
-            is CallAction.RejectAsSpam -> "spam: ${action.tag}"
             is CallAction.RejectAsTelemarketer -> "telemarketer"
             is CallAction.RejectAsHidden -> "hidden"
             is CallAction.Block -> "blocklist"
@@ -47,9 +45,7 @@ class LogCallEventUseCase @Inject constructor(
             timestamp = System.currentTimeMillis(),
             decision = decision,
             reason = reason,
-            contactName = contactName,
-            spamTag = (action as? CallAction.RejectAsSpam)?.tag,
-            spamScore = (action as? CallAction.RejectAsSpam)?.score
+            contactName = contactName
         )
 
         return callLogRepository.logCall(entry)

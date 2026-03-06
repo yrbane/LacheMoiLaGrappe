@@ -103,13 +103,6 @@ fun SettingsScreen(
             )
 
             SwitchSettingsItem(
-                title = "Utiliser la base spam",
-                subtitle = "Détecter les numéros spam connus",
-                checked = uiState.spamDbEnabled,
-                onCheckedChange = viewModel::setSpamDbEnabled
-            )
-
-            SwitchSettingsItem(
                 title = "Bloquer les démarcheurs",
                 subtitle = "Préfixes ARCEP réservés (0162, 0163, etc.)",
                 checked = uiState.blockTelemarketersEnabled,

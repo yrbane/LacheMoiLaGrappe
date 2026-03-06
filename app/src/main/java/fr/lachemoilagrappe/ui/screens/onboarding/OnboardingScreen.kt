@@ -205,8 +205,8 @@ private fun HowItWorksPage() {
 
         FeatureItem(
             icon = Icons.Default.Block,
-            title = "D\u00e9tecte le spam",
-            description = "Utilise une base de donn\u00e9es de num\u00e9ros spam connus pour vous prot\u00e9ger."
+            title = "Bloque les num\u00e9ros masqu\u00e9s",
+            description = "Les appels sans num\u00e9ro visible sont automatiquement rejet\u00e9s."
         )
     }
 }

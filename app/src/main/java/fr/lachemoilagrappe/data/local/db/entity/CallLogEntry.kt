@@ -20,7 +20,5 @@ data class CallLogEntry(
     val timestamp: Long,
     val decision: CallDecision,
     val reason: String,
-    val contactName: String? = null,
-    val spamTag: String? = null,
-    val spamScore: Int? = null
+    val contactName: String? = null
 )

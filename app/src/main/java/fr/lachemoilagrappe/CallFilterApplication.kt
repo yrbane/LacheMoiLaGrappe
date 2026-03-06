@@ -16,7 +16,8 @@ class CallFilterApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize Timber for logging
+        System.loadLibrary("sqlcipher")
+
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }

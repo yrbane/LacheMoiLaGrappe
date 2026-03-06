@@ -19,7 +19,7 @@ LacheMoiLaGrappe est un **bouclier anti-emmerdeurs** pour votre téléphone Andr
 - **Démarcheurs ARCEP** : Les 17 préfixes réservés au démarchage (0162, 0163, 0270...) sont bloqués net. L'ARCEP les a identifiés, on les dégomme
 - **Numéros inconnus** : Pas dans vos contacts ? Pas de sonnerie. Simple, efficace, radical
 - **Numéros masqués** : Ceux qui se cachent derrière un numéro privé n'ont qu'à assumer. Option activable
-- **Base spam** : Les numéros signalés comme spam sont détectés et rejetés avec notification
+- **Blocklist** : Les numéros indésirables sont bloqués avec notification
 - **SMS automatique** : Un message poli est envoyé à l'appelant inconnu pour lui demander de s'identifier. Parce qu'on n'est pas des sauvages non plus
 - **Allowlist / Blocklist** : Écran dédié pour gérer vos listes, avec ajout rapide et swipe-to-delete
 - **Préfixes personnalisés** : Vous repérez un nouveau schéma de démarchage ? Ajoutez le préfixe vous-même
@@ -40,6 +40,8 @@ LacheMoiLaGrappe est un **bouclier anti-emmerdeurs** pour votre téléphone Andr
 ## Votre téléphone, vos règles
 
 - **Zéro collecte de données** : Tout reste sur votre téléphone. Pas de serveur, pas de tracking, pas de business louche avec vos données
+- **Base de données chiffrée** : Vos données sont protégées par SQLCipher (AES-256) avec une clé gérée par le Android Keystore matériel
+- **Aucune permission réseau** : L'appli ne demande même pas l'accès à Internet. Rien ne sort
 - **Open source** : Le code est là, lisez-le. On n'a rien à cacher (contrairement aux démarcheurs)
 - **Gratuit** : Pas de pub, pas d'abonnement, pas de "version premium". Juste la paix
 
@@ -82,7 +84,6 @@ Ou directement depuis le [Google Play Store](https://play.google.com/store/apps/
 | Paramètre | Description | Défaut |
 |-----------|-------------|--------|
 | Filtrer les inconnus | Rejeter les appels non-contacts | ON |
-| Base spam | Détection des numéros spam | ON |
 | Bloquer les démarcheurs | Préfixes ARCEP | ON |
 | Numéros masqués | Rejeter les appels privés | OFF |
 | SMS automatique | Réponse aux inconnus | OFF |
@@ -105,7 +106,7 @@ fr.lachemoilagrappe/
 │   ├── local/
 │   │   ├── db/             # Room (entities, DAOs)
 │   │   └── preferences/    # DataStore
-│   ├── remote/             # API spam (optionnel)
+
 │   └── repository/         # Implémentations
 ├── service/
 │   ├── CallFilterScreeningService.kt
@@ -129,7 +130,7 @@ fr.lachemoilagrappe/
 
 ### Stack
 
-Kotlin 2.0 | Jetpack Compose | Material 3 | Room | Hilt | WorkManager | Flow/Coroutines | libphonenumber | DataStore
+Kotlin 2.0 | Jetpack Compose | Material 3 | Room | Hilt | WorkManager | Flow/Coroutines | libphonenumber | DataStore | SQLCipher
 
 ## Tests
 

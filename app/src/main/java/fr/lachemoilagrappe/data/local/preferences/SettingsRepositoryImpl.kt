@@ -26,7 +26,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private object Keys {
         val FILTER_UNKNOWN_ENABLED = booleanPreferencesKey("filter_unknown_enabled")
-        val SPAM_DB_ENABLED = booleanPreferencesKey("spam_db_enabled")
+
         val AUTO_SMS_ENABLED = booleanPreferencesKey("auto_sms_enabled")
         val SMS_CONFIRMATION_MODE = booleanPreferencesKey("sms_confirmation_mode")
         val SMS_COOLDOWN_HOURS = intPreferencesKey("sms_cooldown_hours")
@@ -39,7 +39,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private object Defaults {
         const val FILTER_UNKNOWN_ENABLED = true
-        const val SPAM_DB_ENABLED = true
+
         const val AUTO_SMS_ENABLED = false
         const val SMS_CONFIRMATION_MODE = true
         const val SMS_COOLDOWN_HOURS = 24
@@ -50,9 +50,6 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override val filterUnknownEnabled: Flow<Boolean> = context.dataStore.data
         .map { it[Keys.FILTER_UNKNOWN_ENABLED] ?: Defaults.FILTER_UNKNOWN_ENABLED }
-
-    override val spamDbEnabled: Flow<Boolean> = context.dataStore.data
-        .map { it[Keys.SPAM_DB_ENABLED] ?: Defaults.SPAM_DB_ENABLED }
 
     override val autoSmsEnabled: Flow<Boolean> = context.dataStore.data
         .map { it[Keys.AUTO_SMS_ENABLED] ?: Defaults.AUTO_SMS_ENABLED }
@@ -85,10 +82,6 @@ class SettingsRepositoryImpl @Inject constructor(
         context.dataStore.edit { it[Keys.FILTER_UNKNOWN_ENABLED] = enabled }
     }
 
-    override suspend fun setSpamDbEnabled(enabled: Boolean) {
-        context.dataStore.edit { it[Keys.SPAM_DB_ENABLED] = enabled }
-    }
-
     override suspend fun setAutoSmsEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.AUTO_SMS_ENABLED] = enabled }
     }
@@ -115,9 +108,6 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun getFilterUnknownEnabled(): Boolean =
         filterUnknownEnabled.first()
-
-    override suspend fun getSpamDbEnabled(): Boolean =
-        spamDbEnabled.first()
 
     override suspend fun getAutoSmsEnabled(): Boolean =
         autoSmsEnabled.first()

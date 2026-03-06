@@ -20,19 +20,7 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 
 ---
 
-## Version 0.2.0 - Base Spam [COMPLETE]
-
-**Objectif** : Integration de la detection de spam.
-
-- [x] Entite SpamEntry + SpamDao (Room)
-- [x] SpamRepository avec lookup
-- [x] Import manuel de base spam (JSON)
-- [x] Affichage tag + score dans l'historique
-- [x] Notification enrichie pour spam detecte
-
----
-
-## Version 0.3.0 - Allowlist / Blocklist [COMPLETE]
+## Version 0.2.0 - Allowlist / Blocklist [COMPLETE]
 
 **Objectif** : Controle utilisateur sur les numeros.
 
@@ -40,7 +28,7 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 - [x] UserListRepository
 - [x] Actions dans l'historique : "Autoriser" / "Bloquer"
 - [x] Ecran dedie de gestion des listes (onglets, swipe-to-delete, FAB)
-- [x] Priorite : blocklist > allowlist > spam > contacts
+- [x] Priorite : blocklist > allowlist > contacts
 
 ---
 
@@ -95,7 +83,7 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 - [x] Section test du filtrage en bas de l'accueil (debug only)
 
 ### Notifications avancees
-- [x] Canaux de notification (rejete, spam, SMS)
+- [x] Canaux de notification (rejete, SMS)
 - [x] Notifications groupees avec resume
 - [x] Actions rapides depuis notification
 
@@ -103,12 +91,19 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 - [x] Widget home screen (appels bloques aujourd'hui)
 - [x] Icone monochrome adaptative (Android 13+)
 
+### Securite
+- [x] Chiffrement de la base de donnees avec SQLCipher (AES-256)
+- [x] Cle de chiffrement protegee par Android Keystore materiel
+- [x] Aucune permission INTERNET (zero acces reseau)
+
 ### Publication
 - [x] Namespace fr.lachemoilagrappe
 - [x] Keystore de release + ProGuard/R8
 - [x] Privacy Policy (GitHub Pages)
 - [x] Assets Play Store (icone 512, feature graphic)
 - [x] Documentation complete (README, PLAN, ROADMAP, guide Play Store)
+- [x] Structure fastlane pour F-Droid
+- [x] Licence MIT
 
 ---
 
@@ -117,7 +112,6 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 ### Version 1.1.0 - Ameliorations
 
 - [ ] Theme clair / sombre
-- [ ] Synchronisation automatique base spam
 - [ ] Ecran statistiques detaillees
 - [ ] Accessibilite (TalkBack, grands textes)
 - [ ] Backup/Restore Google Drive
@@ -133,7 +127,6 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 ### Version 1.3.0 - Integrations
 
 - [ ] API externe pour validation HLR (mobile vs fixe)
-- [ ] Contribution communautaire a la base spam
 - [ ] Application Wear OS companion
 - [ ] Widget Android Auto
 
@@ -144,10 +137,9 @@ Cette roadmap definit les phases de developpement de LacheMoiLaGrappe, de la ver
 | Milestone | Status | Progress |
 |-----------|--------|----------|
 | 0.1.0 MVP | Complete | 100% |
-| 0.2.0 Base Spam | Complete | 100% |
-| 0.3.0 Allowlist/Blocklist | Complete | 100% |
-| 0.4.0 SMS Auto | Complete | 100% |
-| 0.4.1 Demarcheurs ARCEP | Complete | 100% |
-| 0.4.2 Numeros masques | Complete | 100% |
-| 0.4.3 Tests/Debug | Complete | 100% |
+| 0.2.0 Allowlist/Blocklist | Complete | 100% |
+| 0.3.0 SMS Auto | Complete | 100% |
+| 0.3.1 Demarcheurs ARCEP | Complete | 100% |
+| 0.3.2 Numeros masques | Complete | 100% |
+| 0.3.3 Tests/Debug | Complete | 100% |
 | 1.0.0 Release | Complete | 100% |

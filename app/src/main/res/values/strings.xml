@@ -5,8 +5,6 @@
     <!-- Home Screen -->
     <string name="filter_unknown_calls">Filtrer les appels inconnus</string>
     <string name="filter_unknown_calls_desc">Rejeter les appels de numéros non enregistrés</string>
-    <string name="use_spam_database">Utiliser la base spam</string>
-    <string name="use_spam_database_desc">Détecter et bloquer les numéros spam connus</string>
     <string name="auto_sms">SMS automatique</string>
     <string name="auto_sms_desc">Envoyer un SMS aux appelants inconnus</string>
 
@@ -15,12 +13,10 @@
     <string name="no_calls_yet">Aucun appel filtré</string>
     <string name="call_allowed">Autorisé</string>
     <string name="call_rejected">Rejeté</string>
-    <string name="call_spam">Spam</string>
 
     <!-- Settings Screen -->
     <string name="settings">Paramètres</string>
     <string name="sms_settings">Paramètres SMS</string>
-    <string name="spam_database">Base de données spam</string>
     <string name="about">À propos</string>
 
     <!-- Permissions -->
@@ -46,10 +42,8 @@
 
     <!-- Notifications -->
     <string name="notification_channel_rejected">Appels rejetés</string>
-    <string name="notification_channel_spam">Spam détecté</string>
     <string name="notification_channel_sms">SMS envoyés</string>
     <string name="notification_rejected_title">Appel rejeté</string>
-    <string name="notification_spam_title">Spam détecté</string>
     <string name="notification_telemarketer_title">Démarcheur bloqué</string>
     <string name="notification_hidden_title">Numéro masqué bloqué</string>
 
@@ -60,8 +54,6 @@
     <string name="onboarding_block_telemarketers_desc">Identifie et rejette automatiquement les appels de d\u00e9marchage t\u00e9l\u00e9phonique.</string>
     <string name="onboarding_filter_unknowns">Filtre les inconnus</string>
     <string name="onboarding_filter_unknowns_desc">Les num\u00e9ros qui ne sont pas dans vos contacts sont filtr\u00e9s.</string>
-    <string name="onboarding_detect_spam">D\u00e9tecte le spam</string>
-    <string name="onboarding_detect_spam_desc">Utilise une base de donn\u00e9es de num\u00e9ros spam connus pour vous prot\u00e9ger.</string>
     <string name="onboarding_permissions_title">Autorisations n\u00e9cessaires</string>
     <string name="onboarding_authorize">Autoriser</string>
     <string name="onboarding_permissions_granted">Autorisations accord\u00e9es</string>

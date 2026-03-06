@@ -3,7 +3,6 @@ package fr.lachemoilagrappe.domain.usecase
 import fr.lachemoilagrappe.domain.model.CallAction
 import fr.lachemoilagrappe.domain.repository.ContactsRepository
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
-import fr.lachemoilagrappe.domain.repository.SpamRepository
 import fr.lachemoilagrappe.domain.repository.UserListRepository
 import fr.lachemoilagrappe.util.PhoneNumberHelper
 import javax.inject.Inject
@@ -15,14 +14,12 @@ import javax.inject.Inject
  * 1. Blocklist utilisateur → Block
  * 2. Allowlist utilisateur → Allow
  * 3. Préfixes démarcheurs (si activé) → RejectAsTelemarketer
- * 4. Base spam (si activée) → RejectAsSpam
- * 5. Contact connu → Allow
- * 6. Inconnu (si filtrage activé) → Reject
- * 7. Sinon → Allow
+ * 4. Contact connu → Allow
+ * 5. Inconnu (si filtrage activé) → Reject
+ * 6. Sinon → Allow
  */
 class DecideCallActionUseCase @Inject constructor(
     private val contactsRepository: ContactsRepository,
-    private val spamRepository: SpamRepository,
     private val userListRepository: UserListRepository,
     private val settingsRepository: SettingsRepository,
     private val phoneNumberHelper: PhoneNumberHelper
@@ -72,28 +69,17 @@ class DecideCallActionUseCase @Inject constructor(
             }
         }
 
-        // 4. Vérifier la base spam si activée
-        if (settingsRepository.getSpamDbEnabled()) {
-            val spamEntry = spamRepository.lookupNumber(phoneNumber)
-            if (spamEntry != null) {
-                return CallAction.RejectAsSpam(
-                    tag = spamEntry.tag,
-                    score = spamEntry.score
-                )
-            }
-        }
-
-        // 5. Vérifier si c'est un contact connu
+        // 4. Vérifier si c'est un contact connu
         if (contactsRepository.isNumberInContacts(phoneNumber)) {
             return CallAction.Allow
         }
 
-        // 6. Si filtrage des inconnus activé, rejeter
+        // 5. Si filtrage des inconnus activé, rejeter
         if (settingsRepository.getFilterUnknownEnabled()) {
             return CallAction.Reject
         }
 
-        // 7. Sinon, laisser passer
+        // 6. Sinon, laisser passer
         return CallAction.Allow
     }
 

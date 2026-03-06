@@ -116,9 +116,6 @@ class CallFilterWidget : AppWidgetProvider() {
                 val rejectedCount = dao.getCallCountByDecisionSince(
                     CallDecision.REJECTED, todayStart
                 )
-                val spamCount = dao.getCallCountByDecisionSince(
-                    CallDecision.REJECTED_SPAM, todayStart
-                )
                 val telemarketerCount = dao.getCallCountByDecisionSince(
                     CallDecision.REJECTED_TELEMARKETER, todayStart
                 )
@@ -129,7 +126,7 @@ class CallFilterWidget : AppWidgetProvider() {
                     CallDecision.BLOCKED, todayStart
                 )
 
-                val totalBlocked = rejectedCount + spamCount + telemarketerCount +
+                val totalBlocked = rejectedCount + telemarketerCount +
                         hiddenCount + blockedCount
 
                 // Check if filtering is enabled via DataStore

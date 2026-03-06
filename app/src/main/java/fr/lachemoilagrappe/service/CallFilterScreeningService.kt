@@ -141,7 +141,6 @@ class CallFilterScreeningService : CallScreeningService() {
                     setSkipCallLog(false)
                 }
                 is CallAction.Reject,
-                is CallAction.RejectAsSpam,
                 is CallAction.RejectAsTelemarketer,
                 is CallAction.RejectAsHidden,
                 is CallAction.Block -> {

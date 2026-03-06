@@ -35,7 +35,6 @@ FILTRAGE INTELLIGENT :
 - Blocage des demarcheurs ARCEP : Les 17 prefixes reserves au demarchage sont bloques automatiquement
 - Filtrage des numeros inconnus : Pas dans vos contacts ? Pas de sonnerie
 - Blocage des numeros masques : Ceux qui se cachent n'ont qu'a assumer
-- Detection des spams : Base de donnees locale de numeros signales
 - SMS automatique : Reponse polie aux inconnus pour demander leur identite (opt-in)
 - Allowlist / Blocklist : Ecran dedie pour gerer vos listes
 - Prefixes personnalises : Ajoutez vos propres prefixes a bloquer
@@ -51,6 +50,8 @@ UX SOIGNEE :
 RESPECT DE LA VIE PRIVEE :
 
 - Zero collecte de donnees : tout reste sur votre telephone
+- Base de donnees chiffree (SQLCipher AES-256)
+- Aucune permission Internet : rien ne sort de votre telephone
 - Pas de serveur, pas de tracking, pas de pub
 - Open source : le code est public sur GitHub
 - Gratuit : pas d'abonnement, pas de version premium
@@ -86,7 +87,7 @@ Reponds au questionnaire :
 - **Collecte de donnees utilisateur** : Non
 - **Partage de donnees** : Non
 - **Donnees collectees** : Aucune transmise a des tiers
-- **Pratiques de securite** : Donnees stockees localement, pas de chiffrement en transit (pas de transfert)
+- **Pratiques de securite** : Donnees chiffrees localement (SQLCipher AES-256), pas de transfert reseau
 
 ## 6. Declarations de permissions sensibles
 

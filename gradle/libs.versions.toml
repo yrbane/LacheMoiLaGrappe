@@ -20,6 +20,7 @@ espresso = "3.6.1"
 mockk = "1.13.13"
 turbine = "1.2.0"
 timber = "5.0.1"
+sqlcipherAndroid = "4.12.0"
 
 [libraries]
 # AndroidX Core
@@ -66,6 +67,9 @@ libphonenumber = { group = "com.googlecode.libphonenumber", name = "libphonenumb
 # Coroutines
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+
+# Security
+sqlcipher-android = { group = "net.zetetic", name = "sqlcipher-android", version.ref = "sqlcipherAndroid" }
 
 # Logging
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }

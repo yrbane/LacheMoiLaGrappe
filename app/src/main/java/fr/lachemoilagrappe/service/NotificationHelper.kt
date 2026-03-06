@@ -40,13 +40,6 @@ class NotificationHelper @Inject constructor(
                     description = "Notifications pour les appels rejetés"
                 },
                 NotificationChannel(
-                    CHANNEL_SPAM,
-                    context.getString(R.string.notification_channel_spam),
-                    NotificationManager.IMPORTANCE_DEFAULT
-                ).apply {
-                    description = "Notifications pour les spams détectés"
-                },
-                NotificationChannel(
                     CHANNEL_SMS,
                     context.getString(R.string.notification_channel_sms),
                     NotificationManager.IMPORTANCE_LOW
@@ -76,13 +69,8 @@ class NotificationHelper @Inject constructor(
         rejectedCountToday++
 
         val (channelId, title, text) = when (action) {
-            is CallAction.RejectAsSpam -> Triple(
-                CHANNEL_SPAM,
-                context.getString(R.string.notification_spam_title),
-                "Spam détecté : ${action.tag} (score ${action.score}) - $displayNumber"
-            )
             is CallAction.RejectAsTelemarketer -> Triple(
-                CHANNEL_SPAM,
+                CHANNEL_REJECTED,
                 "Démarcheur bloqué",
                 "Numéro démarcheur rejeté : $displayNumber"
             )
@@ -284,7 +272,6 @@ class NotificationHelper @Inject constructor(
 
     companion object {
         const val CHANNEL_REJECTED = "rejected_calls"
-        const val CHANNEL_SPAM = "spam_detected"
         const val CHANNEL_SMS = "sms_sent"
 
         const val EXTRA_PHONE_NUMBER = "phone_number"

@@ -192,31 +192,49 @@ fun DebugScreen(
             QuickTestButton(
                 label = "Numéro inconnu",
                 number = "+33698765432",
-                onClick = { viewModel.testCall(it) }
+                onClick = { viewModel.simulateFullCall(it) }
             )
 
             QuickTestButton(
                 label = "Numéro masqué",
                 number = "",
-                onClick = { viewModel.testCall(it) }
+                onClick = { viewModel.simulateFullCall(it) }
             )
 
             QuickTestButton(
                 label = "Numéro court (urgence)",
                 number = "15",
-                onClick = { viewModel.testCall(it) }
+                onClick = { viewModel.simulateFullCall(it) }
             )
 
             QuickTestButton(
                 label = "Démarcheur (0162)",
                 number = "0162123456",
-                onClick = { viewModel.testCall(it) }
+                onClick = { viewModel.simulateFullCall(it) }
             )
 
             QuickTestButton(
                 label = "Démarcheur DOM (09475)",
                 number = "0947512345",
-                onClick = { viewModel.testCall(it) }
+                onClick = { viewModel.simulateFullCall(it) }
+            )
+
+            QuickTestButton(
+                label = "Démarcheur (0163)",
+                number = "0163876543",
+                onClick = { viewModel.simulateFullCall(it) }
+            )
+
+            QuickTestButton(
+                label = "Démarcheur (0270)",
+                number = "0270654321",
+                onClick = { viewModel.simulateFullCall(it) }
+            )
+
+            QuickTestButton(
+                label = "Numéro inconnu 2",
+                number = "+33745123987",
+                onClick = { viewModel.simulateFullCall(it) }
             )
 
             Button(
@@ -234,7 +252,6 @@ private fun ResultCard(result: TestResult) {
     val (color, icon) = when (result.action) {
         is CallAction.Allow -> Success to "✓"
         is CallAction.Reject -> Warning to "✗"
-        is CallAction.RejectAsSpam -> Error to "🚫"
         is CallAction.RejectAsTelemarketer -> Error to "📞"
         is CallAction.RejectAsHidden -> Error to "❓"
         is CallAction.Block -> Error to "⛔"

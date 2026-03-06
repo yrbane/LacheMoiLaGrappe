@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 data class SettingsUiState(
     val filterUnknownEnabled: Boolean = true,
-    val spamDbEnabled: Boolean = true,
     val blockTelemarketersEnabled: Boolean = true,
     val blockHiddenNumbersEnabled: Boolean = true,
     val autoSmsEnabled: Boolean = false,
@@ -33,7 +32,6 @@ class SettingsViewModel @Inject constructor(
     @Suppress("UNCHECKED_CAST")
     val uiState: StateFlow<SettingsUiState> = combine(
         settingsRepository.filterUnknownEnabled,
-        settingsRepository.spamDbEnabled,
         settingsRepository.blockTelemarketersEnabled,
         settingsRepository.blockHiddenNumbersEnabled,
         settingsRepository.autoSmsEnabled,
@@ -44,14 +42,13 @@ class SettingsViewModel @Inject constructor(
     ) { values ->
         SettingsUiState(
             filterUnknownEnabled = values[0] as Boolean,
-            spamDbEnabled = values[1] as Boolean,
-            blockTelemarketersEnabled = values[2] as Boolean,
-            blockHiddenNumbersEnabled = values[3] as Boolean,
-            autoSmsEnabled = values[4] as Boolean,
-            smsConfirmationMode = values[5] as Boolean,
-            smsCooldownHours = values[6] as Int,
-            smsTemplate = values[7] as String,
-            customTelemarketerPrefixes = values[8] as Set<String>
+            blockTelemarketersEnabled = values[1] as Boolean,
+            blockHiddenNumbersEnabled = values[2] as Boolean,
+            autoSmsEnabled = values[3] as Boolean,
+            smsConfirmationMode = values[4] as Boolean,
+            smsCooldownHours = values[5] as Int,
+            smsTemplate = values[6] as String,
+            customTelemarketerPrefixes = values[7] as Set<String>
         )
     }.stateIn(
         scope = viewModelScope,
@@ -62,12 +59,6 @@ class SettingsViewModel @Inject constructor(
     fun setFilterUnknownEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setFilterUnknownEnabled(enabled)
-        }
-    }
-
-    fun setSpamDbEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.setSpamDbEnabled(enabled)
         }
     }
 

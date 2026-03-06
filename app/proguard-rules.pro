@@ -34,6 +34,9 @@
 # Keep WorkManager workers
 -keep class fr.lachemoilagrappe.worker.** { *; }
 
+# SQLCipher
+-keep class net.zetetic.database.** { *; }
+
 # Keep DataStore
 -keepclassmembers class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite { *; }
 

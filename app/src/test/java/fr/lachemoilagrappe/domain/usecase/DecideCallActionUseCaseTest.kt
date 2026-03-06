@@ -1,10 +1,8 @@
 package fr.lachemoilagrappe.domain.usecase
 
-import fr.lachemoilagrappe.data.local.db.entity.SpamEntry
 import fr.lachemoilagrappe.domain.model.CallAction
 import fr.lachemoilagrappe.domain.repository.ContactsRepository
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
-import fr.lachemoilagrappe.domain.repository.SpamRepository
 import fr.lachemoilagrappe.domain.repository.UserListRepository
 import fr.lachemoilagrappe.util.PhoneNumberHelper
 import io.mockk.coEvery
@@ -12,14 +10,12 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 class DecideCallActionUseCaseTest {
 
     private lateinit var contactsRepository: ContactsRepository
-    private lateinit var spamRepository: SpamRepository
     private lateinit var userListRepository: UserListRepository
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var phoneNumberHelper: PhoneNumberHelper
@@ -28,18 +24,15 @@ class DecideCallActionUseCaseTest {
     @Before
     fun setup() {
         contactsRepository = mockk()
-        spamRepository = mockk()
         userListRepository = mockk()
         settingsRepository = mockk()
         phoneNumberHelper = mockk()
 
-        // Default behavior: no contacts, no spam, no lists, filtering enabled
+        // Default behavior: no contacts, no lists, filtering enabled
         coEvery { contactsRepository.isNumberInContacts(any()) } returns false
-        coEvery { spamRepository.lookupNumber(any()) } returns null
         coEvery { userListRepository.isBlocked(any()) } returns false
         coEvery { userListRepository.isAllowed(any()) } returns false
         coEvery { settingsRepository.getFilterUnknownEnabled() } returns true
-        coEvery { settingsRepository.getSpamDbEnabled() } returns true
         coEvery { settingsRepository.getBlockTelemarketersEnabled() } returns true
         coEvery { settingsRepository.getCustomTelemarketerPrefixes() } returns emptySet()
 
@@ -58,21 +51,11 @@ class DecideCallActionUseCaseTest {
 
         useCase = DecideCallActionUseCase(
             contactsRepository,
-            spamRepository,
             userListRepository,
             settingsRepository,
             phoneNumberHelper
         )
     }
-
-    private fun createSpamEntry(number: String, tag: String, score: Int) = SpamEntry(
-        normalizedNumber = number,
-        tag = tag,
-        score = score,
-        source = "test",
-        lastSeen = System.currentTimeMillis(),
-        updatedAt = System.currentTimeMillis()
-    )
 
     // === BLOCKLIST TESTS ===
 
@@ -100,16 +83,6 @@ class DecideCallActionUseCaseTest {
     @Test
     fun `allowed number returns Allow action`() = runTest {
         coEvery { userListRepository.isAllowed("+33612345678") } returns true
-
-        val result = useCase("+33612345678")
-
-        assertEquals(CallAction.Allow, result)
-    }
-
-    @Test
-    fun `allowed number bypasses spam check`() = runTest {
-        coEvery { userListRepository.isAllowed("+33612345678") } returns true
-        coEvery { spamRepository.lookupNumber("+33612345678") } returns createSpamEntry("+33612345678", "arnaque", 90)
 
         val result = useCase("+33612345678")
 
@@ -156,31 +129,6 @@ class DecideCallActionUseCaseTest {
         assertEquals(CallAction.Reject, result)
     }
 
-    // === SPAM DATABASE TESTS ===
-
-    @Test
-    fun `spam number returns RejectAsSpam with details`() = runTest {
-        coEvery { spamRepository.lookupNumber("+33612345678") } returns createSpamEntry("+33612345678", "arnaque", 85)
-
-        val result = useCase("+33612345678")
-
-        assertTrue(result is CallAction.RejectAsSpam)
-        val spamAction = result as CallAction.RejectAsSpam
-        assertEquals("arnaque", spamAction.tag)
-        assertEquals(85, spamAction.score)
-    }
-
-    @Test
-    fun `spam check disabled allows spam number`() = runTest {
-        coEvery { settingsRepository.getSpamDbEnabled() } returns false
-        coEvery { spamRepository.lookupNumber("+33612345678") } returns createSpamEntry("+33612345678", "arnaque", 90)
-
-        val result = useCase("+33612345678")
-
-        // Should be rejected as unknown (spam DB disabled)
-        assertEquals(CallAction.Reject, result)
-    }
-
     // === CONTACT TESTS ===
 
     @Test
@@ -214,7 +162,6 @@ class DecideCallActionUseCaseTest {
 
     @Test
     fun `normalizes +33 prefix correctly`() = runTest {
-        // Telemarketer check uses normalized number
         val result = useCase("+33162123456")
 
         assertEquals(CallAction.RejectAsTelemarketer, result)
@@ -256,22 +203,12 @@ class DecideCallActionUseCaseTest {
     }
 
     @Test
-    fun `telemarketer takes priority over spam`() = runTest {
-        coEvery { spamRepository.lookupNumber("0162123456") } returns createSpamEntry("0162123456", "spam", 100)
+    fun `telemarketer takes priority over contact`() = runTest {
+        coEvery { contactsRepository.isNumberInContacts("0162123456") } returns true
 
         val result = useCase("0162123456")
 
         assertEquals(CallAction.RejectAsTelemarketer, result)
-    }
-
-    @Test
-    fun `spam takes priority over contact`() = runTest {
-        coEvery { contactsRepository.isNumberInContacts("+33612345678") } returns true
-        coEvery { spamRepository.lookupNumber("+33612345678") } returns createSpamEntry("+33612345678", "arnaque", 80)
-
-        val result = useCase("+33612345678")
-
-        assertTrue(result is CallAction.RejectAsSpam)
     }
 
     // === CUSTOM PREFIX TESTS ===

@@ -73,7 +73,6 @@ class DebugViewModel @Inject constructor(
                 val (actionName, reason) = when (action) {
                     is CallAction.Allow -> "AUTORISÉ" to "L'appel serait accepté"
                     is CallAction.Reject -> "REJETÉ" to "Numéro inconnu - appel rejeté"
-                    is CallAction.RejectAsSpam -> "SPAM" to "Spam détecté: ${action.tag} (score: ${action.score})"
                     is CallAction.RejectAsTelemarketer -> "DÉMARCHEUR" to "Préfixe réservé aux démarcheurs (ARCEP)"
                     is CallAction.RejectAsHidden -> "MASQUÉ" to "Numéro masqué - appel rejeté"
                     is CallAction.Block -> "BLOQUÉ" to "Numéro dans la blocklist"

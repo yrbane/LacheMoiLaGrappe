@@ -1,0 +1,33 @@
+Tired of spam calls?
+
+Tired of people calling you during dinner to sell you insurance you don't need, fake training programs, or solar panels when you live in a studio apartment?
+
+It's over. LacheMoiLaGrappe is an anti-spam shield for your Android phone.
+
+SMART FILTERING:
+
+- ARCEP telemarketer blocking: 17 telemarketing-reserved prefixes are automatically blocked
+- Unknown number filtering: Not in your contacts? No ringing
+- Hidden number blocking: Those who hide behind a private number can deal with it
+- Auto SMS: Polite reply to unknown callers asking them to identify themselves (opt-in)
+- Allowlist / Blocklist: Dedicated screen to manage your lists
+- Custom prefixes: Add your own prefixes to block
+
+POLISHED UX:
+
+- Guided onboarding for first-time setup
+- History with search, swipe-to-action and CSV export
+- Home screen widget to track blocked calls
+- Grouped and non-intrusive notifications
+- Haptic feedback on actions
+
+PRIVACY FIRST:
+
+- Zero data collection: everything stays on your phone
+- Encrypted database (SQLCipher AES-256)
+- No Internet permission: nothing leaves your phone
+- No server, no tracking, no ads
+- Open source: code is public on GitHub
+- Free: no subscription, no premium version
+
+Because I'd rather have people who care about me on the line, not people who care about my wallet.

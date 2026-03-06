@@ -324,7 +324,6 @@ private fun CallLogItem(entry: CallLogEntry) {
     val (statusColor, statusIcon) = when (entry.decision) {
         CallDecision.ALLOWED -> Success to Icons.Default.Check
         CallDecision.REJECTED -> Warning to Icons.Default.PhoneDisabled
-        CallDecision.REJECTED_SPAM -> Error to Icons.Default.Block
         CallDecision.REJECTED_TELEMARKETER -> Error to Icons.Default.Block
         CallDecision.REJECTED_HIDDEN -> Error to Icons.Default.Block
         CallDecision.BLOCKED -> Error to Icons.Default.Block
@@ -333,7 +332,6 @@ private fun CallLogItem(entry: CallLogEntry) {
     val statusText = when (entry.decision) {
         CallDecision.ALLOWED -> stringResource(R.string.call_allowed)
         CallDecision.REJECTED -> stringResource(R.string.call_rejected)
-        CallDecision.REJECTED_SPAM -> entry.spamTag ?: stringResource(R.string.call_spam)
         CallDecision.REJECTED_TELEMARKETER -> "Démarcheur"
         CallDecision.REJECTED_HIDDEN -> "Masqué"
         CallDecision.BLOCKED -> "Bloqué"

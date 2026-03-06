@@ -83,16 +83,14 @@ class HistoryViewModel @Inject constructor(
 
         val csvFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         file.bufferedWriter().use { writer ->
-            writer.write("Date,Numéro,Contact,Décision,Raison,Tag Spam,Score Spam")
+            writer.write("Date,Numéro,Contact,Décision,Raison")
             writer.newLine()
             entries.forEach { entry ->
                 val date = csvFormatter.format(Date(entry.timestamp))
                 val contact = entry.contactName?.replace(",", " ") ?: ""
                 val number = entry.phoneNumber.replace(",", " ")
                 val reason = entry.reason.replace(",", " ")
-                val tag = entry.spamTag?.replace(",", " ") ?: ""
-                val score = entry.spamScore?.toString() ?: ""
-                writer.write("$date,$number,$contact,${entry.decision},$reason,$tag,$score")
+                writer.write("$date,$number,$contact,${entry.decision},$reason")
                 writer.newLine()
             }
         }

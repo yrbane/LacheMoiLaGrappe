@@ -1,0 +1,33 @@
+Marre des appels a la con ?
+
+Marre de ces types qui vous appellent en plein repas pour vous vendre une mutuelle dont vous n'avez pas besoin, une formation CPF bidon, ou des panneaux solaires alors que vous vivez en studio ?
+
+C'est fini. LacheMoiLaGrappe est un bouclier anti-emmerdeurs pour votre telephone Android.
+
+FILTRAGE INTELLIGENT :
+
+- Blocage des demarcheurs ARCEP : Les 17 prefixes reserves au demarchage sont bloques automatiquement
+- Filtrage des numeros inconnus : Pas dans vos contacts ? Pas de sonnerie
+- Blocage des numeros masques : Ceux qui se cachent n'ont qu'a assumer
+- SMS automatique : Reponse polie aux inconnus pour demander leur identite (opt-in)
+- Allowlist / Blocklist : Ecran dedie pour gerer vos listes
+- Prefixes personnalises : Ajoutez vos propres prefixes a bloquer
+
+UX SOIGNEE :
+
+- Onboarding guide pour la premiere utilisation
+- Historique avec recherche, swipe-to-action et export CSV
+- Widget home screen pour suivre les appels bloques
+- Notifications groupees et non intrusives
+- Retour haptique sur les actions
+
+RESPECT DE LA VIE PRIVEE :
+
+- Zero collecte de donnees : tout reste sur votre telephone
+- Base de donnees chiffree (SQLCipher AES-256)
+- Aucune permission Internet : rien ne sort de votre telephone
+- Pas de serveur, pas de tracking, pas de pub
+- Open source : le code est public sur GitHub
+- Gratuit : pas d'abonnement, pas de version premium
+
+Parce que je prefere avoir au bout du fil les gens qui m'aiment moi, pas ceux qui aiment mon porte-monnaie.

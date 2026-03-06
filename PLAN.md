@@ -29,7 +29,6 @@ fr.lachemoilagrappe/
 │   ├── local/
 │   │   ├── db/             # Room (entities, DAOs)
 │   │   └── preferences/    # DataStore
-│   ├── remote/             # API spam (optionnel)
 │   └── repository/         # Implementations
 ├── service/
 │   ├── CallFilterScreeningService.kt
@@ -54,7 +53,7 @@ fr.lachemoilagrappe/
 ### 1.3 Manifest et permissions [COMPLETE]
 
 - [x] READ_CONTACTS, READ_PHONE_STATE, READ_CALL_LOG
-- [x] SEND_SMS, POST_NOTIFICATIONS, INTERNET
+- [x] SEND_SMS, POST_NOTIFICATIONS
 - [x] RECEIVE_BOOT_COMPLETED, FOREGROUND_SERVICE
 - [x] CallScreeningService declaration
 - [x] FileProvider pour export CSV
@@ -69,20 +68,17 @@ fr.lachemoilagrappe/
 
 #### Entites
 - [x] CallLogEntry - Historique des appels filtres
-- [x] SpamEntry - Base de donnees spam
 - [x] UserListEntry - Allowlist/Blocklist utilisateur
 - [x] SmsLogEntry - Historique des SMS envoyes
 
 #### DAOs [COMPLETE]
 - [x] CallLogDao : CRUD historique + recherche + compteurs
-- [x] SpamDao : Lookup + bulk insert/update
 - [x] UserListDao : Gestion allow/block
 - [x] SmsLogDao : Rate limiting + historique
 
 ### 2.2 Repositories [COMPLETE]
 
 - [x] ContactsRepository
-- [x] SpamRepository
 - [x] UserListRepository
 - [x] CallLogRepository (avec recherche et compteur total)
 - [x] SmsRepository
@@ -95,15 +91,14 @@ fr.lachemoilagrappe/
 ### 3.1 Use Cases [COMPLETE]
 
 - [x] DecideCallActionUseCase - Logique de decision avec prefixes demarcheurs
-- [x] LookupSpamUseCase - Recherche dans la base spam
 - [x] ShouldSendSmsUseCase - Decision d'envoi SMS
 - [x] SendIdentitySmsUseCase - Envoi SMS avec status tracking
 - [x] LogCallEventUseCase - Journalisation des appels
 
 ### 3.2 Modeles Domain [COMPLETE]
 
-- [x] CallAction (Allow, Reject, RejectAsSpam, RejectAsTelemarketer, RejectAsHidden, Block)
-- [x] CallDecision (ALLOWED, REJECTED, REJECTED_SPAM, REJECTED_TELEMARKETER, REJECTED_HIDDEN, BLOCKED)
+- [x] CallAction (Allow, Reject, RejectAsTelemarketer, RejectAsHidden, Block)
+- [x] CallDecision (ALLOWED, REJECTED, REJECTED_TELEMARKETER, REJECTED_HIDDEN, BLOCKED)
 - [x] SmsDecision (Send, AskConfirmation, Skip)
 - [x] ListType (ALLOW, BLOCK)
 
@@ -117,7 +112,6 @@ fr.lachemoilagrappe/
 - [x] Verification blocklist/allowlist
 - [x] Detection des 17 prefixes demarcheurs ARCEP
 - [x] Detection des numeros masques (configurable)
-- [x] Recherche dans base spam
 - [x] Verification contacts
 - [x] Decision de filtrage
 - [x] Notification d'appel rejete (avec groupement)
@@ -140,7 +134,7 @@ fr.lachemoilagrappe/
 2. **HomeScreen** [COMPLETE]
    - [x] Statistiques d'appels filtres (aujourd'hui)
    - [x] Compteur total depuis l'installation
-   - [x] Toggles rapides avec icones (filtrage, spam, SMS)
+   - [x] Toggles rapides avec icones (filtrage, SMS)
    - [x] Badge Actif/Inactif
    - [x] Carte d'activation si service non actif
    - [x] Section test du filtrage (debug only)
@@ -200,7 +194,7 @@ fr.lachemoilagrappe/
 
 ## Phase 6 : Notifications [COMPLETE]
 
-- [x] Canaux de notification (rejete, spam, SMS)
+- [x] Canaux de notification (rejete, SMS)
 - [x] Regroupement des notifications (setGroup)
 - [x] Notification resumee (summary)
 - [x] Actions rapides depuis notification (autoriser/bloquer)
@@ -208,7 +202,17 @@ fr.lachemoilagrappe/
 
 ---
 
-## Phase 7 : Publication [COMPLETE]
+## Phase 7 : Securite [COMPLETE]
+
+- [x] Chiffrement Room avec SQLCipher (AES-256)
+- [x] Gestion cle via Android Keystore (DatabaseKeyHelper)
+- [x] Suppression permission INTERNET (zero acces reseau)
+- [x] ProGuard rules pour SQLCipher
+- [x] Licence MIT ajoutee
+
+---
+
+## Phase 8 : Publication [COMPLETE]
 
 - [x] Namespace fr.lachemoilagrappe
 - [x] Keystore de release
@@ -219,23 +223,24 @@ fr.lachemoilagrappe/
 - [x] README complet
 - [x] FUNDING.yml (GitHub Sponsors, PayPal)
 - [x] FileProvider pour export CSV
+- [x] Structure fastlane pour F-Droid
 
 ---
 
-## Phase 8 : Tests [PARTIEL]
+## Phase 9 : Tests [PARTIEL]
 
-### 8.1 Tests unitaires [COMPLETE]
+### 9.1 Tests unitaires [COMPLETE]
 
 - [x] DecideCallActionUseCaseTest (20+ tests)
 - [x] ShouldSendSmsUseCaseTest (15+ tests)
 
-### 8.2 Tests d'integration [A FAIRE]
+### 9.2 Tests d'integration [A FAIRE]
 
 - [ ] Room DAOs avec base in-memory
 - [ ] Repositories avec faux contacts
 - [ ] WorkManager avec TestDriver
 
-### 8.3 Tests UI [A FAIRE]
+### 9.3 Tests UI [A FAIRE]
 
 - [ ] Compose UI tests avec ComposeTestRule
 - [ ] Navigation tests

@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PhoneDisabled
 import androidx.compose.material.icons.filled.Science
@@ -118,7 +117,6 @@ fun HomeScreen(
             // Hero Stats Card
             StatsCard(
                 rejectedToday = uiState.todayRejectedCount,
-                spamToday = uiState.todaySpamCount,
                 totalBlocked = uiState.totalBlockedCount,
                 isActive = isScreeningEnabled
             )
@@ -130,15 +128,6 @@ fun HomeScreen(
                 description = stringResource(R.string.filter_unknown_calls_desc),
                 checked = uiState.filterUnknownEnabled,
                 onCheckedChange = viewModel::setFilterUnknownEnabled,
-                enabled = isScreeningEnabled
-            )
-
-            SettingToggle(
-                icon = Icons.Default.Block,
-                title = stringResource(R.string.use_spam_database),
-                description = stringResource(R.string.use_spam_database_desc),
-                checked = uiState.spamDbEnabled,
-                onCheckedChange = viewModel::setSpamDbEnabled,
                 enabled = isScreeningEnabled
             )
 
@@ -241,7 +230,6 @@ private fun ActivationCard(onActivate: () -> Unit) {
 @Composable
 private fun StatsCard(
     rejectedToday: Int,
-    spamToday: Int,
     totalBlocked: Int,
     isActive: Boolean
 ) {
@@ -305,17 +293,12 @@ private fun StatsCard(
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.Center
             ) {
                 StatItem(
                     value = rejectedToday.toString(),
                     label = "Appels filtrés",
                     icon = Icons.Default.PhoneDisabled
-                )
-                StatItem(
-                    value = spamToday.toString(),
-                    label = "Spams détectés",
-                    icon = Icons.Default.Block
                 )
             }
             if (totalBlocked > 0) {
