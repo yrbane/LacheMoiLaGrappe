@@ -218,6 +218,30 @@ class NotificationHelper @Inject constructor(
         }
     }
 
+    fun showPhishingSmsNotification(phoneNumber: String, keyword: String?) {
+        val displayNumber = phoneNumberHelper.formatForDisplay(phoneNumber)
+        val text = if (keyword != null) {
+            "Tentative de phishing détectée (mot-clé: $keyword)"
+        } else {
+            "Ce SMS contient un lien suspect."
+        }
+
+        val notificationId = safeNotificationId(phoneNumber, OFFSET_PHISHING)
+        val notification = NotificationCompat.Builder(context, CHANNEL_SMS)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle("🚨 Phishing SMS: $displayNumber")
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setAutoCancel(true)
+            .build()
+
+        try {
+            notificationManager.notify(notificationId, notification)
+        } catch (e: SecurityException) {
+            Timber.e(e, "Permission denied for phishing notification")
+        }
+    }
+
     private fun createAllowPendingIntent(phoneNumber: String): PendingIntent {
         val intent = Intent(context, ActionReceiver::class.java).apply {
             action = ACTION_ALLOW
@@ -295,5 +319,6 @@ class NotificationHelper @Inject constructor(
         private const val OFFSET_ACTION_BLOCK = 4_000_000
         private const val OFFSET_ACTION_SEND_SMS = 5_000_000
         private const val OFFSET_ACTION_DISMISS = 6_000_000
+        private const val OFFSET_PHISHING = 7_000_000
     }
 }

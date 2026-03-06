@@ -1,6 +1,8 @@
 package fr.lachemoilagrappe.data.repository
 
+import fr.lachemoilagrappe.data.local.db.dao.PhishingSmsDao
 import fr.lachemoilagrappe.data.local.db.dao.SmsLogDao
+import fr.lachemoilagrappe.data.local.db.entity.PhishingSmsEntry
 import fr.lachemoilagrappe.data.local.db.entity.SmsLogEntry
 import fr.lachemoilagrappe.domain.model.SmsStatus
 import fr.lachemoilagrappe.domain.repository.SmsRepository
@@ -8,6 +10,7 @@ import fr.lachemoilagrappe.util.PhoneNumberHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -16,6 +19,7 @@ import javax.inject.Singleton
 @Singleton
 class SmsRepositoryImpl @Inject constructor(
     private val smsLogDao: SmsLogDao,
+    private val phishingSmsDao: PhishingSmsDao,
     private val phoneNumberHelper: PhoneNumberHelper
 ) : SmsRepository {
 
@@ -72,5 +76,45 @@ class SmsRepositoryImpl @Inject constructor(
 
     override fun getSmsHistoryFlow(): Flow<List<SmsLogEntry>> {
         return smsLogDao.getAllFlow()
+    }
+
+    override suspend fun logPhishingSms(
+        phoneNumber: String,
+        body: String,
+        matchedKeyword: String?
+    ): Long {
+        val entry = PhishingSmsEntry(
+            phoneNumber = phoneNumber,
+            timestamp = System.currentTimeMillis(),
+            body = body,
+            matchedKeyword = matchedKeyword
+        )
+        return phishingSmsDao.insertPhishingSms(entry)
+    }
+
+    override fun getPhishingHistoryFlow(): Flow<List<PhishingSmsEntry>> {
+        return phishingSmsDao.getAllPhishingSms()
+    }
+
+    override suspend fun deletePhishingSms(id: Long) {
+        phishingSmsDao.deletePhishingSms(id)
+    }
+
+    override suspend fun markPhishingAsRead(id: Long) {
+        phishingSmsDao.markAsRead(id)
+    }
+
+    override fun getUnreadPhishingCount(): Flow<Int> {
+        return phishingSmsDao.getUnreadCount()
+    }
+
+    override fun countBlockedPhishingToday(): Flow<Int> {
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return phishingSmsDao.countBlockedToday(calendar.timeInMillis)
     }
 }

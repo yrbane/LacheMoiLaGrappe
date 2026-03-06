@@ -12,6 +12,7 @@ interface SettingsRepository {
     val blockHiddenNumbersEnabled: Flow<Boolean>
     val customTelemarketerPrefixes: Flow<Set<String>>
     val onboardingCompleted: Flow<Boolean>
+    val phishingProtectionEnabled: Flow<Boolean>
 
     suspend fun setFilterUnknownEnabled(enabled: Boolean)
     suspend fun setAutoSmsEnabled(enabled: Boolean)
@@ -20,6 +21,7 @@ interface SettingsRepository {
     suspend fun setSmsTemplate(template: String)
     suspend fun setBlockTelemarketersEnabled(enabled: Boolean)
     suspend fun setBlockHiddenNumbersEnabled(enabled: Boolean)
+    suspend fun setPhishingProtectionEnabled(enabled: Boolean)
 
     suspend fun getFilterUnknownEnabled(): Boolean
     suspend fun getAutoSmsEnabled(): Boolean
@@ -28,6 +30,7 @@ interface SettingsRepository {
     suspend fun getSmsTemplate(): String
     suspend fun getBlockTelemarketersEnabled(): Boolean
     suspend fun getBlockHiddenNumbersEnabled(): Boolean
+    suspend fun getPhishingProtectionEnabled(): Boolean
 
     suspend fun getCustomTelemarketerPrefixes(): Set<String>
     suspend fun addCustomTelemarketerPrefix(prefix: String)

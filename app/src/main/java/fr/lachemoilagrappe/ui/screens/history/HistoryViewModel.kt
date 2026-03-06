@@ -7,7 +7,9 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.lachemoilagrappe.data.local.db.entity.CallLogEntry
+import fr.lachemoilagrappe.data.local.db.entity.PhishingSmsEntry
 import fr.lachemoilagrappe.domain.repository.CallLogRepository
+import fr.lachemoilagrappe.domain.repository.SmsRepository
 import fr.lachemoilagrappe.domain.repository.UserListRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,15 +25,23 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
+enum class HistoryTab {
+    CALLS, SMS
+}
+
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val callLogRepository: CallLogRepository,
+    private val smsRepository: SmsRepository,
     private val userListRepository: UserListRepository
 ) : ViewModel() {
 
     val searchQuery = MutableStateFlow("")
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing
+    
+    private val _selectedTab = MutableStateFlow(HistoryTab.CALLS)
+    val selectedTab: StateFlow<HistoryTab> = _selectedTab
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val callHistory: StateFlow<List<CallLogEntry>> = searchQuery
@@ -47,15 +57,25 @@ class HistoryViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+        
+    val phishingSmsHistory: StateFlow<List<PhishingSmsEntry>> = smsRepository.getPhishingHistoryFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     fun onSearchQueryChanged(query: String) {
         searchQuery.value = query
+    }
+    
+    fun selectTab(tab: HistoryTab) {
+        _selectedTab.value = tab
     }
 
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            // The flow is reactive, so just trigger a brief refresh indicator
             kotlinx.coroutines.delay(300)
             _isRefreshing.value = false
         }
@@ -70,6 +90,18 @@ class HistoryViewModel @Inject constructor(
     fun blockNumber(phoneNumber: String) {
         viewModelScope.launch {
             userListRepository.addToBlocklist(phoneNumber)
+        }
+    }
+    
+    fun deletePhishingSms(id: Long) {
+        viewModelScope.launch {
+            smsRepository.deletePhishingSms(id)
+        }
+    }
+    
+    fun markPhishingAsRead(id: Long) {
+        viewModelScope.launch {
+            smsRepository.markPhishingAsRead(id)
         }
     }
 

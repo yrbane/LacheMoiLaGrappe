@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LacheMoiLaGrappe</string>
+
+    <!-- Home Screen -->
+    <string name="filter_unknown_calls">Filter unknown calls</string>
+    <string name="filter_unknown_calls_desc">Reject calls from numbers not in your contacts</string>
+    <string name="auto_sms">Auto SMS</string>
+    <string name="auto_sms_desc">Send an SMS to unknown callers</string>
+
+    <!-- History Screen -->
+    <string name="history">History</string>
+    <string name="no_calls_yet">No calls filtered yet</string>
+    <string name="call_allowed">Allowed</string>
+    <string name="call_rejected">Rejected</string>
+
+    <!-- Settings Screen -->
+    <string name="settings">Settings</string>
+    <string name="sms_settings">SMS Settings</string>
+    <string name="about">About</string>
+
+    <!-- Permissions -->
+    <string name="permission_contacts_title">Contacts Access</string>
+    <string name="permission_contacts_desc">Needed to identify your contacts and allow their calls.</string>
+    <string name="permission_phone_title">Phone State</string>
+    <string name="permission_phone_desc">Needed to filter incoming calls.</string>
+    <string name="permission_sms_title">Send SMS</string>
+    <string name="permission_sms_desc">Optional. Allows sending an SMS to unknown callers.</string>
+    <string name="permission_notification_title">Notifications</string>
+    <string name="permission_notification_desc">To inform you about filtered calls.</string>
+
+    <!-- Actions -->
+    <string name="allow">Allow</string>
+    <string name="block">Block</string>
+    <string name="add_to_contacts">Add to contacts</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="save">Save</string>
+
+    <!-- SMS Template -->
+    <string name="sms_template_default">Hello, I filter unknown calls. Could you please state your identity and the purpose of your call? Thank you.</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_rejected">Rejected Calls</string>
+    <string name="notification_channel_sms">Sent SMS</string>
+    <string name="notification_rejected_title">Call rejected</string>
+    <string name="notification_telemarketer_title">Telemarketer blocked</string>
+    <string name="notification_hidden_title">Hidden number blocked</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">I\'d rather talk to people who love me, not those who love my wallet</string>
+    <string name="onboarding_how_it_works">How does it work?</string>
+    <string name="onboarding_block_telemarketers">Blocks telemarketers</string>
+    <string name="onboarding_block_telemarketers_desc">Automatically identifies and rejects telemarketing calls.</string>
+    <string name="onboarding_filter_unknowns">Filters unknowns</string>
+    <string name="onboarding_filter_unknowns_desc">Numbers not in your contacts are filtered.</string>
+    <string name="onboarding_permissions_title">Required permissions</string>
+    <string name="onboarding_authorize">Authorize</string>
+    <string name="onboarding_permissions_granted">Permissions granted</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_finish">Let\'s go!</string>
+
+    <!-- About -->
+    <string name="privacy_policy_url">https://yrbane.github.io/LacheMoiLaGrappe/privacy</string>
+
+    <!-- Widget -->
+    <string name="widget_description">Shows the number of blocked calls today</string>
+    <string name="widget_status_active">Active</string>
+    <string name="widget_status_inactive">Inactive</string>
+    <string name="widget_loading">Loading\u2026</string>
+    <plurals name="widget_blocked_today">
+        <item quantity="one">%d call blocked today</item>
+        <item quantity="other">%d calls blocked today</item>
+    </plurals>
+</resources>

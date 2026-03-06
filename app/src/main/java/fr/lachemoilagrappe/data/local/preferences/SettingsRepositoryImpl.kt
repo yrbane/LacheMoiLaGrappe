@@ -35,6 +35,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val BLOCK_HIDDEN_NUMBERS_ENABLED = booleanPreferencesKey("block_hidden_numbers_enabled")
         val CUSTOM_TELEMARKETER_PREFIXES = stringPreferencesKey("custom_telemarketer_prefixes")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val PHISHING_PROTECTION_ENABLED = booleanPreferencesKey("phishing_protection_enabled")
     }
 
     private object Defaults {
@@ -46,6 +47,7 @@ class SettingsRepositoryImpl @Inject constructor(
         const val SMS_TEMPLATE = "Bonjour, je filtre les appels inconnus. Pouvez-vous m'indiquer votre identité et l'objet de votre appel ? Merci."
         const val BLOCK_TELEMARKETERS_ENABLED = true
         const val BLOCK_HIDDEN_NUMBERS_ENABLED = true
+        const val PHISHING_PROTECTION_ENABLED = true
     }
 
     override val filterUnknownEnabled: Flow<Boolean> = context.dataStore.data
@@ -77,6 +79,9 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override val onboardingCompleted: Flow<Boolean> = context.dataStore.data
         .map { it[Keys.ONBOARDING_COMPLETED] ?: false }
+        
+    override val phishingProtectionEnabled: Flow<Boolean> = context.dataStore.data
+        .map { it[Keys.PHISHING_PROTECTION_ENABLED] ?: Defaults.PHISHING_PROTECTION_ENABLED }
 
     override suspend fun setFilterUnknownEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.FILTER_UNKNOWN_ENABLED] = enabled }
@@ -105,6 +110,10 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setBlockHiddenNumbersEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.BLOCK_HIDDEN_NUMBERS_ENABLED] = enabled }
     }
+    
+    override suspend fun setPhishingProtectionEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.PHISHING_PROTECTION_ENABLED] = enabled }
+    }
 
     override suspend fun getFilterUnknownEnabled(): Boolean =
         filterUnknownEnabled.first()
@@ -126,6 +135,9 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun getBlockHiddenNumbersEnabled(): Boolean =
         blockHiddenNumbersEnabled.first()
+        
+    override suspend fun getPhishingProtectionEnabled(): Boolean =
+        phishingProtectionEnabled.first()
 
     override suspend fun getCustomTelemarketerPrefixes(): Set<String> =
         customTelemarketerPrefixes.first()

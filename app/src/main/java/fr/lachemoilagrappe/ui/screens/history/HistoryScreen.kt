@@ -3,6 +3,7 @@ package fr.lachemoilagrappe.ui.screens.history
 import android.content.Intent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import fr.lachemoilagrappe.R
 import fr.lachemoilagrappe.data.local.db.entity.CallLogEntry
+import fr.lachemoilagrappe.data.local.db.entity.PhishingSmsEntry
 import fr.lachemoilagrappe.domain.model.CallDecision
 import fr.lachemoilagrappe.ui.theme.Error
 import fr.lachemoilagrappe.ui.theme.Success
@@ -81,6 +84,8 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val callHistory by viewModel.callHistory.collectAsState()
+    val smsHistory by viewModel.phishingSmsHistory.collectAsState()
+    val selectedTab by viewModel.selectedTab.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,67 +96,96 @@ fun HistoryScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    if (isSearchVisible) {
-                        TextField(
-                            value = searchQuery,
-                            onValueChange = viewModel::onSearchQueryChanged,
-                            placeholder = { Text("Rechercher...") },
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        Text(stringResource(R.string.history))
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
+            Column {
+                TopAppBar(
+                    title = {
                         if (isSearchVisible) {
-                            isSearchVisible = false
-                            viewModel.onSearchQueryChanged("")
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = viewModel::onSearchQueryChanged,
+                                placeholder = { Text("Rechercher...") },
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         } else {
-                            onNavigateBack()
+                            Text(stringResource(R.string.history))
                         }
-                    }) {
-                        Icon(
-                            if (isSearchVisible) Icons.Default.Close
-                            else Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Retour"
-                        )
-                    }
-                },
-                actions = {
-                    if (!isSearchVisible) {
-                        IconButton(onClick = { isSearchVisible = true }) {
-                            Icon(Icons.Default.Search, contentDescription = "Rechercher")
-                        }
+                    },
+                    navigationIcon = {
                         IconButton(onClick = {
-                            val uri = viewModel.exportCsv(context)
-                            if (uri != null) {
-                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/csv"
-                                    putExtra(Intent.EXTRA_STREAM, uri)
-                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                }
-                                context.startActivity(Intent.createChooser(shareIntent, "Exporter l'historique"))
+                            if (isSearchVisible) {
+                                isSearchVisible = false
+                                viewModel.onSearchQueryChanged("")
                             } else {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Aucun historique à exporter")
-                                }
+                                onNavigateBack()
                             }
                         }) {
-                            Icon(Icons.Default.FileDownload, contentDescription = "Exporter CSV")
+                            Icon(
+                                if (isSearchVisible) Icons.Default.Close
+                                else Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Retour"
+                            )
+                        }
+                    },
+                    actions = {
+                        if (!isSearchVisible) {
+                            IconButton(onClick = { isSearchVisible = true }) {
+                                Icon(Icons.Default.Search, contentDescription = "Rechercher")
+                            }
+                            IconButton(onClick = {
+                                val uri = viewModel.exportCsv(context)
+                                if (uri != null) {
+                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/csv"
+                                        putExtra(Intent.EXTRA_STREAM, uri)
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    }
+                                    context.startActivity(Intent.createChooser(shareIntent, "Exporter l'historique"))
+                                } else {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("Aucun historique à exporter")
+                                    }
+                                }
+                            }) {
+                                Icon(Icons.Default.FileDownload, contentDescription = "Exporter CSV")
+                            }
                         }
                     }
+                )
+
+                // Tabs
+                androidx.compose.material3.SecondaryTabRow(
+                    selectedTabIndex = selectedTab.ordinal,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    divider = {}
+                ) {
+                    androidx.compose.material3.Tab(
+                        selected = selectedTab == HistoryTab.CALLS,
+                        onClick = { viewModel.selectTab(HistoryTab.CALLS) },
+                        text = { Text("Appels") }
+                    )
+                    androidx.compose.material3.Tab(
+                        selected = selectedTab == HistoryTab.SMS,
+                        onClick = { viewModel.selectTab(HistoryTab.SMS) },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Phishing")
+                                val unreadCount = smsHistory.count { !it.isRead }
+                                if (unreadCount > 0) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    androidx.compose.material3.Badge { Text(unreadCount.toString()) }
+                                }
+                            }
+                        }
+                    )
                 }
-            )
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
@@ -162,53 +196,161 @@ fun HistoryScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (callHistory.isEmpty()) {
-                EmptyHistoryState(
-                    modifier = Modifier.fillMaxSize(),
-                    isSearching = searchQuery.isNotBlank()
-                )
-            } else {
-                val grouped = callHistory.groupBy { getDateGroup(it.timestamp) }
+            when (selectedTab) {
+                HistoryTab.CALLS -> {
+                    if (callHistory.isEmpty()) {
+                        EmptyHistoryState(
+                            modifier = Modifier.fillMaxSize(),
+                            isSearching = searchQuery.isNotBlank(),
+                            icon = Icons.Default.Shield,
+                            text = if (searchQuery.isNotBlank()) "Aucun résultat" else stringResource(R.string.no_calls_yet)
+                        )
+                    } else {
+                        val grouped = callHistory.groupBy { getDateGroup(it.timestamp) }
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    grouped.forEach { (dateLabel, entries) ->
-                        item(key = "header_$dateLabel") {
-                            Text(
-                                text = dateLabel,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
-                            )
-                        }
-
-                        items(entries, key = { it.id }) { entry ->
-                            SwipeableCallLogItem(
-                                entry = entry,
-                                onAllow = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.allowNumber(entry.phoneNumber)
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("${entry.phoneNumber} autorisé")
-                                    }
-                                },
-                                onBlock = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.blockNumber(entry.phoneNumber)
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("${entry.phoneNumber} bloqué")
-                                    }
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            grouped.forEach { (dateLabel, entries) ->
+                                item(key = "header_$dateLabel") {
+                                    Text(
+                                        text = dateLabel,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                                    )
                                 }
-                            )
+
+                                items(entries, key = { it.id }) { entry ->
+                                    SwipeableCallLogItem(
+                                        entry = entry,
+                                        onAllow = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            viewModel.allowNumber(entry.phoneNumber)
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar("${entry.phoneNumber} autorisé")
+                                            }
+                                        },
+                                        onBlock = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            viewModel.blockNumber(entry.phoneNumber)
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar("${entry.phoneNumber} bloqué")
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+
+                            item { Spacer(modifier = Modifier.height(8.dp)) }
                         }
                     }
+                }
+                HistoryTab.SMS -> {
+                    if (smsHistory.isEmpty()) {
+                        EmptyHistoryState(
+                            modifier = Modifier.fillMaxSize(),
+                            isSearching = false,
+                            icon = Icons.Default.Block,
+                            text = "Aucun SMS suspect détecté"
+                        )
+                    } else {
+                        val grouped = smsHistory.groupBy { getDateGroup(it.timestamp) }
 
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            grouped.forEach { (dateLabel, entries) ->
+                                item(key = "sms_header_$dateLabel") {
+                                    Text(
+                                        text = dateLabel,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                                    )
+                                }
+
+                                items(entries, key = { it.id }) { entry ->
+                                    PhishingSmsItem(
+                                        entry = entry,
+                                        onDelete = { viewModel.deletePhishingSms(entry.id) },
+                                        onMarkAsRead = { viewModel.markPhishingAsRead(entry.id) }
+                                    )
+                                }
+                            }
+
+                            item { Spacer(modifier = Modifier.height(8.dp)) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PhishingSmsItem(
+    entry: PhishingSmsEntry,
+    onDelete: () -> Unit,
+    onMarkAsRead: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onMarkAsRead() },
+        colors = CardDefaults.cardColors(
+            containerColor = if (entry.isRead) MaterialTheme.colorScheme.surface
+            else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = entry.phoneNumber,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = if (entry.isRead) FontWeight.Medium else FontWeight.Bold
+                )
+                Text(
+                    text = formatTimestamp(entry.timestamp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = entry.body,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (entry.matchedKeyword != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Block,
+                        contentDescription = null,
+                        tint = Error,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Mot-clé détecté : ${entry.matchedKeyword}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Error
+                    )
                 }
             }
         }
@@ -288,7 +430,9 @@ private fun SwipeableCallLogItem(
 @Composable
 private fun EmptyHistoryState(
     modifier: Modifier = Modifier,
-    isSearching: Boolean = false
+    isSearching: Boolean = false,
+    icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Shield,
+    text: String = stringResource(R.string.no_calls_yet)
 ) {
     Box(
         modifier = modifier,
@@ -299,19 +443,19 @@ private fun EmptyHistoryState(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(
-                if (isSearching) Icons.Default.Search else Icons.Default.Shield,
+                icon,
                 contentDescription = null,
                 modifier = Modifier.size(72.dp),
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
             )
             Text(
-                text = if (isSearching) "Aucun résultat" else stringResource(R.string.no_calls_yet),
+                text = text,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = if (isSearching) "Essayez un autre terme de recherche"
-                else "Les appels filtrés apparaîtront ici",
+                else "Les événements filtrés apparaîtront ici",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )

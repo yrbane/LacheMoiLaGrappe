@@ -21,7 +21,8 @@ data class SettingsUiState(
     val smsCooldownHours: Int = 24,
     val smsTemplate: String = "",
     val customTelemarketerPrefixes: Set<String> = emptySet(),
-    val arcepPrefixes: Set<String> = DecideCallActionUseCase.ARCEP_PREFIXES
+    val arcepPrefixes: Set<String> = DecideCallActionUseCase.ARCEP_PREFIXES,
+    val phishingProtectionEnabled: Boolean = true
 )
 
 @HiltViewModel
@@ -38,7 +39,8 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.smsConfirmationMode,
         settingsRepository.smsCooldownHours,
         settingsRepository.smsTemplate,
-        settingsRepository.customTelemarketerPrefixes
+        settingsRepository.customTelemarketerPrefixes,
+        settingsRepository.phishingProtectionEnabled
     ) { values ->
         SettingsUiState(
             filterUnknownEnabled = values[0] as Boolean,
@@ -48,13 +50,20 @@ class SettingsViewModel @Inject constructor(
             smsConfirmationMode = values[4] as Boolean,
             smsCooldownHours = values[5] as Int,
             smsTemplate = values[6] as String,
-            customTelemarketerPrefixes = values[7] as Set<String>
+            customTelemarketerPrefixes = values[7] as Set<String>,
+            phishingProtectionEnabled = values[8] as Boolean
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SettingsUiState()
     )
+
+    fun setPhishingProtectionEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setPhishingProtectionEnabled(enabled)
+        }
+    }
 
     fun setFilterUnknownEnabled(enabled: Boolean) {
         viewModelScope.launch {

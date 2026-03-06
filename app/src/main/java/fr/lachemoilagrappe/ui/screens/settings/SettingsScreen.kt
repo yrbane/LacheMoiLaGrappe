@@ -128,7 +128,14 @@ fun SettingsScreen(
             HorizontalDivider()
 
             // === SMS ===
-            SettingsSection(title = "SMS automatique")
+            SettingsSection(title = "SMS & Sécurité")
+            
+            SwitchSettingsItem(
+                title = "Détection de Phishing",
+                subtitle = "Analyser les SMS entrants pour bloquer les arnaques (CPF, Colis...)",
+                checked = uiState.phishingProtectionEnabled,
+                onCheckedChange = viewModel::setPhishingProtectionEnabled
+            )
 
             SwitchSettingsItem(
                 title = "Activer les SMS auto",

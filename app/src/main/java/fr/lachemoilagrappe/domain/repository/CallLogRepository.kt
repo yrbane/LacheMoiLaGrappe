@@ -14,4 +14,5 @@ interface CallLogRepository {
     suspend fun deleteOlderThan(before: Long): Int
     suspend fun getTotalBlockedCount(): Int
     fun searchCallsFlow(query: String, limit: Int = 100): Flow<List<CallLogEntry>>
+    fun getBlockedStatsLastDays(days: Int): Flow<Map<Long, Int>>
 }

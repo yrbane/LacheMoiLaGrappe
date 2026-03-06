@@ -19,6 +19,7 @@ data class HomeUiState(
     val autoSmsEnabled: Boolean = false,
     val todayRejectedCount: Int = 0,
     val totalBlockedCount: Int = 0,
+    val blockedStats: Map<Long, Int> = emptyMap(),
     val isLoading: Boolean = true
 )
 
@@ -34,13 +35,15 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> = combine(
         settingsRepository.filterUnknownEnabled,
         settingsRepository.autoSmsEnabled,
-        combine(_todayRejectedCount, _totalBlockedCount) { r, t -> Pair(r, t) }
-    ) { filterEnabled, smsEnabled, (rejected, total) ->
+        combine(_todayRejectedCount, _totalBlockedCount) { r, t -> Pair(r, t) },
+        callLogRepository.getBlockedStatsLastDays(7)
+    ) { filterEnabled, smsEnabled, (rejected, total), stats ->
         HomeUiState(
             filterUnknownEnabled = filterEnabled,
             autoSmsEnabled = smsEnabled,
             todayRejectedCount = rejected,
             totalBlockedCount = total,
+            blockedStats = stats,
             isLoading = false
         )
     }.stateIn(

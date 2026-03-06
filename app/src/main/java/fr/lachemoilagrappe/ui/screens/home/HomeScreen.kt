@@ -8,7 +8,9 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
@@ -49,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -121,6 +125,11 @@ fun HomeScreen(
                 isActive = isScreeningEnabled
             )
 
+            // Blocked Stats Chart (Last 7 days)
+            if (uiState.blockedStats.isNotEmpty()) {
+                StatsChart(stats = uiState.blockedStats)
+            }
+
             // Quick toggles with icons
             SettingToggle(
                 icon = Icons.Default.PhoneDisabled,
@@ -179,6 +188,81 @@ fun HomeScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StatsChart(stats: Map<Long, Int>) {
+    val maxVal = stats.values.maxOrNull()?.coerceAtLeast(1) ?: 1
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Activité des 7 derniers jours",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                stats.entries.forEach { entry ->
+                    val barHeight = (entry.value.toFloat() / maxVal * 80).dp
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        if (entry.value > 0) {
+                            Text(
+                                entry.value.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = primaryColor
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(12.dp)
+                                .height(barHeight.coerceAtLeast(4.dp))
+                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(if (entry.value > 0) primaryColor else surfaceColor)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = formatDayLabel(entry.key),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = onSurfaceColor
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun formatDayLabel(timestamp: Long): String {
+    val cal = java.util.Calendar.getInstance()
+    cal.timeInMillis = timestamp
+    return when (cal.get(java.util.Calendar.DAY_OF_WEEK)) {
+        java.util.Calendar.MONDAY -> "Lun"
+        java.util.Calendar.TUESDAY -> "Mar"
+        java.util.Calendar.WEDNESDAY -> "Mer"
+        java.util.Calendar.THURSDAY -> "Jeu"
+        java.util.Calendar.FRIDAY -> "Ven"
+        java.util.Calendar.SATURDAY -> "Sam"
+        java.util.Calendar.SUNDAY -> "Dim"
+        else -> ""
     }
 }
 
