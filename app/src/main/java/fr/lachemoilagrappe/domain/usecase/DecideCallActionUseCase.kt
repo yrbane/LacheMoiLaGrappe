@@ -67,8 +67,11 @@ class DecideCallActionUseCase @Inject constructor(
             return CallAction.Allow
         }
 
-        // 0.5 Mode Urgence : si 3 appels en moins de 5 minutes
-        val recentAttempts = callLogRepository.getCallCountSince(System.currentTimeMillis() - EMERGENCY_WINDOW_MS)
+        // 0.5 Mode Urgence : si le MÊME numéro appelle 3 fois en moins de 5 minutes
+        val recentAttempts = callLogRepository.getCallCountByNumberSince(
+            normalizedNumber,
+            System.currentTimeMillis() - EMERGENCY_WINDOW_MS
+        )
         if (recentAttempts >= EMERGENCY_ATTEMPTS - 1) { // -1 car l'appel actuel n'est pas encore loggé
             return CallAction.Allow
         }

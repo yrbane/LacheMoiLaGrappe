@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import fr.lachemoilagrappe.domain.repository.CallLogRepository
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -29,20 +28,25 @@ class HomeViewModel @Inject constructor(
     private val callLogRepository: CallLogRepository
 ) : ViewModel() {
 
-    private val _todayRejectedCount = MutableStateFlow(0)
-    private val _totalBlockedCount = MutableStateFlow(0)
+    private val todayStart = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 
     val uiState: StateFlow<HomeUiState> = combine(
         settingsRepository.filterUnknownEnabled,
         settingsRepository.autoSmsEnabled,
-        combine(_todayRejectedCount, _totalBlockedCount) { r, t -> Pair(r, t) },
+        callLogRepository.getBlockedCountSinceFlow(todayStart),
+        callLogRepository.getTotalBlockedCountFlow(),
         callLogRepository.getBlockedStatsLastDays(7)
-    ) { filterEnabled, smsEnabled, (rejected, total), stats ->
+    ) { filterEnabled, smsEnabled, todayRejected, totalBlocked, stats ->
         HomeUiState(
             filterUnknownEnabled = filterEnabled,
             autoSmsEnabled = smsEnabled,
-            todayRejectedCount = rejected,
-            totalBlockedCount = total,
+            todayRejectedCount = todayRejected,
+            totalBlockedCount = totalBlocked,
             blockedStats = stats,
             isLoading = false
         )
@@ -51,24 +55,6 @@ class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = HomeUiState()
     )
-
-    init {
-        loadTodayStats()
-    }
-
-    private fun loadTodayStats() {
-        viewModelScope.launch {
-            val todayStart = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.timeInMillis
-
-            _todayRejectedCount.value = callLogRepository.getCallCountSince(todayStart)
-            _totalBlockedCount.value = callLogRepository.getTotalBlockedCount()
-        }
-    }
 
     fun setFilterUnknownEnabled(enabled: Boolean) {
         viewModelScope.launch {

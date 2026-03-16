@@ -29,6 +29,12 @@ interface CallLogDao {
     @Query("SELECT COUNT(*) FROM call_log WHERE timestamp >= :since")
     suspend fun getCallCountSince(since: Long): Int
 
+    @Query("SELECT COUNT(*) FROM call_log WHERE decision != 'ALLOWED' AND timestamp >= :since")
+    suspend fun getBlockedCountSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM call_log WHERE normalizedNumber = :normalizedNumber AND timestamp >= :since")
+    suspend fun getCallCountByNumberSince(normalizedNumber: String, since: Long): Int
+
     @Query("SELECT COUNT(*) FROM call_log WHERE decision = :decision AND timestamp >= :since")
     suspend fun getCallCountByDecisionSince(decision: CallDecision, since: Long): Int
 
@@ -46,6 +52,12 @@ interface CallLogDao {
 
     @Query("SELECT COUNT(*) FROM call_log WHERE decision != 'ALLOWED'")
     suspend fun getTotalBlockedCount(): Int
+
+    @Query("SELECT COUNT(*) FROM call_log WHERE decision != 'ALLOWED' AND timestamp >= :since")
+    fun getBlockedCountSinceFlow(since: Long): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM call_log WHERE decision != 'ALLOWED'")
+    fun getTotalBlockedCountFlow(): Flow<Int>
 
     @Query("SELECT * FROM call_log WHERE phoneNumber LIKE '%' || :query || '%' OR contactName LIKE '%' || :query || '%' OR normalizedNumber LIKE '%' || :query || '%' ORDER BY timestamp DESC LIMIT :limit")
     fun searchCallsFlow(query: String, limit: Int = 100): Flow<List<CallLogEntry>>

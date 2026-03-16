@@ -41,13 +41,16 @@ class DecideCallActionIntegrationTest {
         coEvery { settingsRepository.getCustomTelemarketerPrefixes() } returns emptySet()
         coEvery { contactsRepository.isNumberInContacts(any()) } returns false
         coEvery { settingsRepository.getFilterUnknownEnabled() } returns true
-        coEvery { callLogRepository.getCallCountSince(any()) } returns 0
+        coEvery { settingsRepository.getSleepModeEnabled() } returns false
+        coEvery { settingsRepository.getSleepModeStartTime() } returns "22:00"
+        coEvery { settingsRepository.getSleepModeEndTime() } returns "07:00"
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 0
     }
 
     @Test
     fun `priority 0 - emergency mode allows call if 3 attempts in 5 minutes`() = runTest {
         val number = "0700000000"
-        coEvery { callLogRepository.getCallCountSince(any()) } returns 3
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 3
         
         val result = useCase(number)
         assertEquals(CallAction.Allow, result)

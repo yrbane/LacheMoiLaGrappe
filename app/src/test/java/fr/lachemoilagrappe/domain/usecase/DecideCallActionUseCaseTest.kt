@@ -38,7 +38,10 @@ class DecideCallActionUseCaseTest {
         coEvery { settingsRepository.getFilterUnknownEnabled() } returns true
         coEvery { settingsRepository.getBlockTelemarketersEnabled() } returns true
         coEvery { settingsRepository.getCustomTelemarketerPrefixes() } returns emptySet()
-        coEvery { callLogRepository.getCallCountSince(any()) } returns 0
+        coEvery { settingsRepository.getSleepModeEnabled() } returns false
+        coEvery { settingsRepository.getSleepModeStartTime() } returns "22:00"
+        coEvery { settingsRepository.getSleepModeEndTime() } returns "07:00"
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 0
 
         // PhoneNumberHelper normalize: simulate realistic behavior
         every { phoneNumberHelper.normalize(any()) } answers {
@@ -151,5 +154,63 @@ class DecideCallActionUseCaseTest {
         val result = useCase("0162123456")
 
         assertEquals(CallAction.Allow, result)
+    }
+
+    // === EMERGENCY MODE TESTS ===
+
+    @Test
+    fun `emergency mode triggers after 2 recent calls from same number`() = runTest {
+        // 2 previous calls from same number in last 5 min => emergency mode (3rd attempt)
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 2
+
+        val result = useCase("+33698765432")
+
+        assertEquals(CallAction.Allow, result)
+    }
+
+    @Test
+    fun `emergency mode does not trigger with only 1 recent call`() = runTest {
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 1
+
+        val result = useCase("+33698765432")
+
+        assertEquals(CallAction.Reject, result)
+    }
+
+    @Test
+    fun `emergency mode counts per number not globally`() = runTest {
+        // Only 1 call from this specific number (even if others called too)
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 1
+
+        val result = useCase("+33698765432")
+
+        // Should NOT trigger emergency mode with only 1 prior call
+        assertEquals(CallAction.Reject, result)
+    }
+
+    // === PUBLIC SERVICES TESTS ===
+
+    @Test
+    fun `emergency number 15 is always allowed`() = runTest {
+        val result = useCase("15")
+        assertEquals(CallAction.Allow, result)
+    }
+
+    @Test
+    fun `SAMU 15 bypasses blocklist`() = runTest {
+        coEvery { userListRepository.isBlocked("15") } returns true
+        val result = useCase("15")
+        assertEquals(CallAction.Allow, result)
+    }
+
+    // === SLEEP MODE TESTS ===
+
+    @Test
+    fun `sleep mode disabled does not affect filtering`() = runTest {
+        coEvery { settingsRepository.getSleepModeEnabled() } returns false
+
+        val result = useCase("+33698765432")
+
+        assertEquals(CallAction.Reject, result)
     }
 }

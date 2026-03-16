@@ -28,7 +28,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("""
             CREATE TABLE IF NOT EXISTS phishing_sms (
-                id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 phoneNumber TEXT NOT NULL,
                 timestamp INTEGER NOT NULL,
                 body TEXT NOT NULL,

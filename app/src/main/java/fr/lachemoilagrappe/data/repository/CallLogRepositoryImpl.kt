@@ -42,12 +42,28 @@ class CallLogRepositoryImpl @Inject constructor(
         return callLogDao.getCallCountSince(since)
     }
 
+    override suspend fun getBlockedCountSince(since: Long): Int {
+        return callLogDao.getBlockedCountSince(since)
+    }
+
+    override suspend fun getCallCountByNumberSince(normalizedNumber: String, since: Long): Int {
+        return callLogDao.getCallCountByNumberSince(normalizedNumber, since)
+    }
+
     override suspend fun deleteOlderThan(before: Long): Int {
         return callLogDao.deleteOlderThan(before)
     }
 
     override suspend fun getTotalBlockedCount(): Int {
         return callLogDao.getTotalBlockedCount()
+    }
+
+    override fun getBlockedCountSinceFlow(since: Long): Flow<Int> {
+        return callLogDao.getBlockedCountSinceFlow(since)
+    }
+
+    override fun getTotalBlockedCountFlow(): Flow<Int> {
+        return callLogDao.getTotalBlockedCountFlow()
     }
 
     override fun searchCallsFlow(query: String, limit: Int): Flow<List<CallLogEntry>> {
