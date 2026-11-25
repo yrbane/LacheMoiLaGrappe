@@ -38,6 +38,17 @@ interface CallLogDao {
     @Query("SELECT COUNT(*) FROM call_log WHERE decision = :decision AND timestamp >= :since")
     suspend fun getCallCountByDecisionSince(decision: CallDecision, since: Long): Int
 
+    @Query("""
+        SELECT 
+            (strftime('%s', date(timestamp / 1000, 'unixepoch', 'localtime')) * 1000) as dayTimestamp,
+            COUNT(*) as count
+        FROM call_log
+        WHERE decision != 'ALLOWED' AND timestamp >= :since
+        GROUP BY dayTimestamp
+        ORDER BY dayTimestamp ASC
+    """)
+    fun getBlockedStatsSinceFlow(since: Long): Flow<List<DayStat>>
+
     @Query("DELETE FROM call_log WHERE id = :id")
     suspend fun deleteById(id: Long)
 
@@ -62,3 +73,8 @@ interface CallLogDao {
     @Query("SELECT * FROM call_log WHERE phoneNumber LIKE '%' || :query || '%' OR contactName LIKE '%' || :query || '%' OR normalizedNumber LIKE '%' || :query || '%' ORDER BY timestamp DESC LIMIT :limit")
     fun searchCallsFlow(query: String, limit: Int = 100): Flow<List<CallLogEntry>>
 }
+
+data class DayStat(
+    val dayTimestamp: Long,
+    val count: Int
+)

@@ -1,0 +1,1 @@
+v1.2.4 - Filtrage intelligent (Lignes fixes & Indicatif local), Widget corrigé, Détection phishing améliorée, Mode Sommeil configurable et sécurité renforcée.

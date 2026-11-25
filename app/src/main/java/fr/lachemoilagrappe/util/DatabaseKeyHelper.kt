@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import androidx.core.content.edit
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -32,10 +33,16 @@ object DatabaseKeyHelper {
         val ivB64 = prefs.getString(PREF_KEY_IV, null)
 
         return if (encryptedKeyB64 != null && ivB64 != null) {
-            decryptPassphrase(
-                Base64.decode(encryptedKeyB64, Base64.NO_WRAP),
-                Base64.decode(ivB64, Base64.NO_WRAP)
-            )
+            try {
+                decryptPassphrase(
+                    Base64.decode(encryptedKeyB64, Base64.NO_WRAP),
+                    Base64.decode(ivB64, Base64.NO_WRAP)
+                )
+            } catch (e: Exception) {
+                // If Keystore key was invalidated/corrupted, delete corrupted DB file and regenerate key
+                context.deleteDatabase("call_filter_db")
+                generateAndStorePassphrase(prefs)
+            }
         } else {
             generateAndStorePassphrase(prefs)
         }
@@ -59,10 +66,10 @@ object DatabaseKeyHelper {
         val iv = cipher.iv
 
         // Store encrypted passphrase and IV
-        prefs.edit()
-            .putString(PREF_ENCRYPTED_KEY, Base64.encodeToString(encryptedPassphrase, Base64.NO_WRAP))
-            .putString(PREF_KEY_IV, Base64.encodeToString(iv, Base64.NO_WRAP))
-            .apply()
+        prefs.edit {
+            putString(PREF_ENCRYPTED_KEY, Base64.encodeToString(encryptedPassphrase, Base64.NO_WRAP))
+            putString(PREF_KEY_IV, Base64.encodeToString(iv, Base64.NO_WRAP))
+        }
 
         return passphrase
     }

@@ -72,4 +72,25 @@
         <item quantity="one">%d appel bloqué aujourd\'hui</item>
         <item quantity="other">%d appels bloqués aujourd\'hui</item>
     </plurals>
+
+    <!-- Quick Settings Tile -->
+    <string name="tile_shield_active">Bouclier Actif</string>
+    <string name="tile_shield_inactive">Bouclier Inactif</string>
+
+    <!-- User Lists -->
+    <string name="user_lists_title">Mes listes</string>
+    <string name="user_lists_desc">Gérer vos numéros autorisés et bloqués</string>
+    <string name="tab_allowed">Autorisés</string>
+    <string name="tab_blocked">Bloqués</string>
+
+    <!-- Home Stats -->
+    <string name="weekly_activity">Activité hebdomadaire</string>
+    <string name="filtering_active">Filtrage actif</string>
+    <string name="filtering_inactive">Filtrage inactif</string>
+    <string name="calls_filtered_label">appels filtrés</string>
+    <string name="since_this_morning">depuis ce matin</string>
+    <string name="total_blocked_format">Au total, %d nuisances ont été évitées.</string>
+    <string name="service_not_enabled">Service non activé</string>
+    <string name="service_not_enabled_desc">LacheMoiLaGrappe doit être défini comme service de filtrage d\'appels pour fonctionner.</string>
+    <string name="activate_now">Activer maintenant</string>
 </resources>

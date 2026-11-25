@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.PhoneDisabled
 import androidx.compose.material.icons.filled.Search
@@ -335,11 +336,24 @@ private fun PhishingSmsItem(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = if (entry.isRead) FontWeight.Medium else FontWeight.Bold
                 )
-                Text(
-                    text = formatTimestamp(entry.timestamp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = formatTimestamp(entry.timestamp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Supprimer",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -561,12 +575,12 @@ private fun getDateGroup(timestamp: Long): String {
             cal.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) -> "Aujourd'hui"
         cal.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
             cal.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) - 1 -> "Hier"
-        else -> SimpleDateFormat("EEEE d MMMM", Locale.FRANCE).format(Date(timestamp))
+        else -> SimpleDateFormat("EEEE d MMMM", Locale.getDefault()).format(Date(timestamp))
             .replaceFirstChar { it.uppercase() }
     }
 }
 
 private fun formatTimestamp(timestamp: Long): String {
-    val formatter = SimpleDateFormat("HH:mm", Locale.FRANCE)
+    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
     return formatter.format(Date(timestamp))
 }

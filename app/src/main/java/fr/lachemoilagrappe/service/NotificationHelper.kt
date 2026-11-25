@@ -58,8 +58,12 @@ class NotificationHelper @Inject constructor(
      * Uses absolute value and modulo to avoid overflow.
      */
     private fun safeNotificationId(phoneNumber: String, offset: Int = 0): Int {
-        val baseId = abs(phoneNumber.hashCode()) % MAX_NOTIFICATION_ID
-        return baseId + offset
+        return computeNotificationId(phoneNumber, offset)
+    }
+
+    fun cancelNotificationsForNumber(phoneNumber: String) {
+        notificationManager.cancel(safeNotificationId(phoneNumber, OFFSET_MAIN))
+        notificationManager.cancel(safeNotificationId(phoneNumber, OFFSET_SMS_CONFIRMATION))
     }
 
     private var rejectedCountToday = 0
@@ -71,12 +75,12 @@ class NotificationHelper @Inject constructor(
         val (channelId, title, text) = when (action) {
             is CallAction.RejectAsTelemarketer -> Triple(
                 CHANNEL_REJECTED,
-                "Démarcheur bloqué",
+                context.getString(R.string.notification_telemarketer_title),
                 "Numéro démarcheur rejeté : $displayNumber"
             )
             is CallAction.RejectAsHidden -> Triple(
                 CHANNEL_REJECTED,
-                "Numéro masqué bloqué",
+                context.getString(R.string.notification_hidden_title),
                 "Appel masqué rejeté"
             )
             is CallAction.Block -> Triple(
@@ -104,7 +108,7 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(context, channelId)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_menu_call)
             .setContentTitle(title)
             .setContentText(text)
@@ -122,7 +126,17 @@ class NotificationHelper @Inject constructor(
                 context.getString(R.string.block),
                 createBlockPendingIntent(phoneNumber)
             )
-            .build()
+
+        // Ajouter l'option SMS si ce n'est pas un numéro masqué
+        if (phoneNumber.isNotEmpty() && phoneNumber != "Numéro masqué") {
+            builder.addAction(
+                android.R.drawable.ic_dialog_email,
+                "Demander identité",
+                createPrepareSmsPendingIntent(phoneNumber)
+            )
+        }
+
+        val notification = builder.build()
 
         try {
             notificationManager.notify(notificationId, notification)
@@ -281,6 +295,19 @@ class NotificationHelper @Inject constructor(
         )
     }
 
+    private fun createPrepareSmsPendingIntent(phoneNumber: String): PendingIntent {
+        val intent = Intent(context, ActionReceiver::class.java).apply {
+            action = ACTION_PREPARE_SMS
+            putExtra(EXTRA_PHONE_NUMBER, phoneNumber)
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            safeNotificationId(phoneNumber, OFFSET_ACTION_PREPARE_SMS),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
     private fun createDismissPendingIntent(phoneNumber: String): PendingIntent {
         val intent = Intent(context, ActionReceiver::class.java).apply {
             action = ACTION_DISMISS
@@ -303,6 +330,7 @@ class NotificationHelper @Inject constructor(
         const val ACTION_ALLOW = "fr.lachemoilagrappe.ACTION_ALLOW"
         const val ACTION_BLOCK = "fr.lachemoilagrappe.ACTION_BLOCK"
         const val ACTION_SEND_SMS = "fr.lachemoilagrappe.ACTION_SEND_SMS"
+        const val ACTION_PREPARE_SMS = "fr.lachemoilagrappe.ACTION_PREPARE_SMS"
         const val ACTION_DISMISS = "fr.lachemoilagrappe.ACTION_DISMISS"
 
         private const val GROUP_REJECTED = "fr.lachemoilagrappe.REJECTED_GROUP"
@@ -312,13 +340,19 @@ class NotificationHelper @Inject constructor(
         private const val MAX_NOTIFICATION_ID = 10_000_000
 
         // Offsets for different notification/action types
-        private const val OFFSET_MAIN = 0
-        private const val OFFSET_SMS_CONFIRMATION = 1_000_000
+        const val OFFSET_MAIN = 0
+        const val OFFSET_SMS_CONFIRMATION = 1_000_000
         private const val OFFSET_SMS_SENT = 2_000_000
         private const val OFFSET_ACTION_ALLOW = 3_000_000
         private const val OFFSET_ACTION_BLOCK = 4_000_000
         private const val OFFSET_ACTION_SEND_SMS = 5_000_000
+        private const val OFFSET_ACTION_PREPARE_SMS = 5_500_000
         private const val OFFSET_ACTION_DISMISS = 6_000_000
         private const val OFFSET_PHISHING = 7_000_000
+
+        fun computeNotificationId(phoneNumber: String, offset: Int = 0): Int {
+            val baseId = abs(phoneNumber.hashCode().toLong()).toInt() % MAX_NOTIFICATION_ID
+            return baseId + offset
+        }
     }
 }

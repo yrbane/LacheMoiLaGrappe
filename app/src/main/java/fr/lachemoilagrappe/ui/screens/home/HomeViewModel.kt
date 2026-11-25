@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -28,20 +29,20 @@ class HomeViewModel @Inject constructor(
     private val callLogRepository: CallLogRepository
 ) : ViewModel() {
 
-    private val todayStart = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-
     val uiState: StateFlow<HomeUiState> = combine(
         settingsRepository.filterUnknownEnabled,
         settingsRepository.autoSmsEnabled,
-        callLogRepository.getBlockedCountSinceFlow(todayStart),
         callLogRepository.getTotalBlockedCountFlow(),
         callLogRepository.getBlockedStatsLastDays(7)
-    ) { filterEnabled, smsEnabled, todayRejected, totalBlocked, stats ->
+    ) { filterEnabled, smsEnabled, totalBlocked, stats ->
+        val todayStart = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val todayRejected = stats[todayStart] ?: stats.entries.lastOrNull()?.value ?: 0
+
         HomeUiState(
             filterUnknownEnabled = filterEnabled,
             autoSmsEnabled = smsEnabled,
@@ -55,6 +56,10 @@ class HomeViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = HomeUiState()
     )
+
+    init {
+        Timber.d("HomeViewModel initialized")
+    }
 
     fun setFilterUnknownEnabled(enabled: Boolean) {
         viewModelScope.launch {

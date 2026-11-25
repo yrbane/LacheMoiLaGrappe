@@ -54,6 +54,7 @@ class SmsReceiver : BroadcastReceiver() {
         if (sender == null || fullMessage.isEmpty()) return
 
         val messageBody = fullMessage.toString()
+        val pendingResult = goAsync()
 
         scope.launch {
             try {
@@ -63,7 +64,7 @@ class SmsReceiver : BroadcastReceiver() {
                 val analysisResult = analyzeSmsContentUseCase(messageBody)
 
                 if (analysisResult.isPhishing) {
-                    Timber.d("Phishing SMS detected from $sender: ${analysisResult.matchedKeyword}")
+                    Timber.d("Phishing SMS detected from ${sender.take(4)}***: ${analysisResult.matchedKeyword}")
                     
                     // Log in database
                     smsRepository.logPhishingSms(
@@ -79,6 +80,8 @@ class SmsReceiver : BroadcastReceiver() {
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error analyzing incoming SMS")
+            } finally {
+                pendingResult.finish()
             }
         }
     }

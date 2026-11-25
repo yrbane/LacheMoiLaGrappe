@@ -85,12 +85,12 @@ fun UserListsScreen(
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     var showAddDialog by remember { mutableStateOf(false) }
 
-    val tabs = listOf("Autoris\u00e9s", "Bloqu\u00e9s")
+    val tabs = listOf(stringResource(R.string.tab_allowed), stringResource(R.string.tab_blocked))
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mes listes") },
+                title = { Text(stringResource(R.string.user_lists_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
@@ -447,6 +447,6 @@ private fun AddNumberDialog(
 }
 
 private fun formatDate(timestamp: Long): String {
-    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE)
+    val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     return formatter.format(Date(timestamp))
 }

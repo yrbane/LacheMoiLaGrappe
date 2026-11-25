@@ -1,11 +1,14 @@
 package fr.lachemoilagrappe.service
 
+import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import fr.lachemoilagrappe.R
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
@@ -20,12 +23,12 @@ class LacheMoiLaGrappeTileService : TileService() {
     lateinit var settingsRepository: SettingsRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var listeningJob: Job? = null
 
     override fun onStartListening() {
         super.onStartListening()
-        
-        // Listen to the state and update the tile
-        settingsRepository.filterUnknownEnabled
+        listeningJob?.cancel()
+        listeningJob = settingsRepository.filterUnknownEnabled
             .onEach { isEnabled ->
                 updateTileState(isEnabled)
             }
@@ -35,20 +38,18 @@ class LacheMoiLaGrappeTileService : TileService() {
     override fun onClick() {
         super.onClick()
         val tile = qsTile ?: return
-        
+
         val isCurrentlyEnabled = tile.state == Tile.STATE_ACTIVE
-        
+
         serviceScope.launch {
             settingsRepository.setFilterUnknownEnabled(!isCurrentlyEnabled)
-            // The flow in onStartListening will update the UI automatically
         }
     }
 
     override fun onStopListening() {
         super.onStopListening()
-        // No need to cancel scope here if we want to keep listening while visible, 
-        // but typically we can recreate scope or just let the flow handle it.
-        // Actually, best to just let it update.
+        listeningJob?.cancel()
+        listeningJob = null
     }
 
     override fun onDestroy() {
@@ -58,11 +59,17 @@ class LacheMoiLaGrappeTileService : TileService() {
 
     private fun updateTileState(isEnabled: Boolean) {
         val tile = qsTile ?: return
-        
+
         tile.state = if (isEnabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        tile.label = if (isEnabled) "Bouclier Actif" else "Bouclier Inactif"
-        tile.subtitle = "Filtrer Inconnus"
-        
+        tile.label = if (isEnabled) {
+            getString(R.string.tile_shield_active)
+        } else {
+            getString(R.string.tile_shield_inactive)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            tile.subtitle = getString(R.string.filter_unknown_calls)
+        }
+
         tile.updateTile()
     }
 }

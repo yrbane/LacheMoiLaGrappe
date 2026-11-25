@@ -3,6 +3,7 @@ package fr.lachemoilagrappe.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
+import fr.lachemoilagrappe.domain.repository.SmsMode
 import fr.lachemoilagrappe.domain.usecase.DecideCallActionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +26,11 @@ data class SettingsUiState(
     val phishingProtectionEnabled: Boolean = true,
     val sleepModeEnabled: Boolean = false,
     val sleepModeStartTime: String = "22:00",
-    val sleepModeEndTime: String = "07:00"
+    val sleepModeEndTime: String = "07:00",
+    val allowFixedLinesEnabled: Boolean = true,
+    val allowLocalAreaCodeEnabled: Boolean = false,
+    val localAreaCodePrefix: String = "0473",
+    val autoSmsMode: SmsMode = SmsMode.MANUAL
 )
 
 @HiltViewModel
@@ -46,7 +51,11 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.phishingProtectionEnabled,
         settingsRepository.sleepModeEnabled,
         settingsRepository.sleepModeStartTime,
-        settingsRepository.sleepModeEndTime
+        settingsRepository.sleepModeEndTime,
+        settingsRepository.allowFixedLinesEnabled,
+        settingsRepository.allowLocalAreaCodeEnabled,
+        settingsRepository.localAreaCodePrefix,
+        settingsRepository.autoSmsMode
     ) { values ->
         SettingsUiState(
             filterUnknownEnabled = values[0] as Boolean,
@@ -60,7 +69,11 @@ class SettingsViewModel @Inject constructor(
             phishingProtectionEnabled = values[8] as Boolean,
             sleepModeEnabled = values[9] as Boolean,
             sleepModeStartTime = values[10] as String,
-            sleepModeEndTime = values[11] as String
+            sleepModeEndTime = values[11] as String,
+            allowFixedLinesEnabled = values[12] as Boolean,
+            allowLocalAreaCodeEnabled = values[13] as Boolean,
+            localAreaCodePrefix = values[14] as String,
+            autoSmsMode = values[15] as SmsMode
         )
     }
 .stateIn(
@@ -132,6 +145,30 @@ class SettingsViewModel @Inject constructor(
     fun setSmsTemplate(template: String) {
         viewModelScope.launch {
             settingsRepository.setSmsTemplate(template)
+        }
+    }
+
+    fun setAllowFixedLinesEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setAllowFixedLinesEnabled(enabled)
+        }
+    }
+
+    fun setAllowLocalAreaCodeEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setAllowLocalAreaCodeEnabled(enabled)
+        }
+    }
+
+    fun setLocalAreaCodePrefix(prefix: String) {
+        viewModelScope.launch {
+            settingsRepository.setLocalAreaCodePrefix(prefix)
+        }
+    }
+
+    fun setAutoSmsMode(mode: SmsMode) {
+        viewModelScope.launch {
+            settingsRepository.setAutoSmsMode(mode)
         }
     }
 

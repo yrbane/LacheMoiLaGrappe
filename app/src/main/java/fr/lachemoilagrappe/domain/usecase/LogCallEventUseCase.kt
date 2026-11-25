@@ -6,6 +6,7 @@ import fr.lachemoilagrappe.domain.model.CallDecision
 import fr.lachemoilagrappe.domain.repository.CallLogRepository
 import fr.lachemoilagrappe.domain.repository.ContactsRepository
 import fr.lachemoilagrappe.util.PhoneNumberHelper
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -20,6 +21,7 @@ class LogCallEventUseCase @Inject constructor(
         phoneNumber: String,
         action: CallAction
     ): Long {
+        Timber.d("Logging call event for: ${phoneNumber.take(4)}***, Action: $action")
         val normalizedNumber = phoneNumberHelper.normalize(phoneNumber) ?: phoneNumber
         val contactName = contactsRepository.getContactName(phoneNumber)
 
@@ -48,6 +50,8 @@ class LogCallEventUseCase @Inject constructor(
             contactName = contactName
         )
 
-        return callLogRepository.logCall(entry)
+        val resultId = callLogRepository.logCall(entry)
+        Timber.d("Call event logged successfully with ID: $resultId")
+        return resultId
     }
 }

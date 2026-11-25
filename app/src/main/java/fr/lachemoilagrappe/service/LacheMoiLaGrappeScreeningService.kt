@@ -5,6 +5,7 @@ import android.telecom.CallScreeningService
 import fr.lachemoilagrappe.domain.model.CallAction
 import fr.lachemoilagrappe.domain.model.SmsDecision
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
+import fr.lachemoilagrappe.domain.repository.SmsMode
 import fr.lachemoilagrappe.domain.usecase.DecideCallActionUseCase
 import fr.lachemoilagrappe.domain.usecase.LogCallEventUseCase
 import fr.lachemoilagrappe.domain.usecase.SendIdentitySmsUseCase
@@ -88,6 +89,7 @@ class LacheMoiLaGrappeScreeningService : CallScreeningService() {
         // Logger l'événement (non-bloquant en cas d'erreur)
         try {
             logCallEventUseCase(phoneNumber, action)
+            fr.lachemoilagrappe.widget.LacheMoiLaGrappeWidget.requestUpdate(applicationContext)
         } catch (e: Exception) {
             Timber.e(e, "Failed to log call event")
         }
@@ -109,6 +111,7 @@ class LacheMoiLaGrappeScreeningService : CallScreeningService() {
 
                 try {
                     logCallEventUseCase("Numéro masqué", action)
+                    fr.lachemoilagrappe.widget.LacheMoiLaGrappeWidget.requestUpdate(applicationContext)
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to log hidden call event")
                 }
@@ -179,14 +182,18 @@ class LacheMoiLaGrappeScreeningService : CallScreeningService() {
             Timber.e(e, "Failed to show rejection notification")
         }
 
-        // Vérifier si on doit envoyer un SMS
-        if (action is CallAction.Reject) {
+        // Vérifier si on doit envoyer un SMS automatiquement
+        if (action is CallAction.Reject && settingsRepository.getAutoSmsEnabled()) {
             try {
                 when (val smsDecision = shouldSendSmsUseCase(phoneNumber)) {
                     is SmsDecision.Send -> {
-                        val result = sendIdentitySmsUseCase(phoneNumber)
-                        notificationHelper.showSmsSentNotification(phoneNumber, result.isSuccess)
-                        Timber.d("SMS sent to ${phoneNumber.take(4)}***: ${result.isSuccess}")
+                        if (settingsRepository.getAutoSmsMode() == SmsMode.AUTOMATIC) {
+                            val result = sendIdentitySmsUseCase(phoneNumber)
+                            notificationHelper.showSmsSentNotification(phoneNumber, result.isSuccess)
+                            Timber.d("SMS sent to ${phoneNumber.take(4)}***: ${result.isSuccess}")
+                        } else {
+                            notificationHelper.showSmsConfirmationNotification(phoneNumber)
+                        }
                     }
                     is SmsDecision.AskConfirmation -> {
                         notificationHelper.showSmsConfirmationNotification(phoneNumber)

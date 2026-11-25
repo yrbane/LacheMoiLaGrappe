@@ -1,6 +1,7 @@
 package fr.lachemoilagrappe.data.repository
 
 import fr.lachemoilagrappe.data.local.db.dao.CallLogDao
+import fr.lachemoilagrappe.data.local.db.dao.DayStat
 import fr.lachemoilagrappe.data.local.db.entity.CallLogEntry
 import fr.lachemoilagrappe.domain.model.CallDecision
 import fr.lachemoilagrappe.domain.repository.CallLogRepository
@@ -83,30 +84,39 @@ class CallLogRepositoryImpl @Inject constructor(
         startCal.add(Calendar.DAY_OF_YEAR, -days + 1)
         val since = startCal.timeInMillis
 
-        return callLogDao.getAllCallsFlow().map { calls ->
-            val stats = mutableMapOf<Long, Int>()
-            val dayCal = Calendar.getInstance()
+        return callLogDao.getBlockedStatsSinceFlow(since).map { dayStats ->
+            val statsMap = mutableMapOf<Long, Int>()
             
-            // Initialize with 0
+            // Initialize with 0 for each of the last X days in LOCAL timezone
             for (i in 0 until days) {
-                dayCal.timeInMillis = since
-                dayCal.add(Calendar.DAY_OF_YEAR, i)
-                stats[dayCal.timeInMillis] = 0
+                val cal = Calendar.getInstance()
+                cal.timeInMillis = since
+                cal.add(Calendar.DAY_OF_YEAR, i)
+                // Normalize to midnight LOCAL
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                statsMap[cal.timeInMillis] = 0
             }
 
-            calls.filter { it.timestamp >= since && it.decision != CallDecision.ALLOWED }
-                .forEach { call ->
-                    dayCal.timeInMillis = call.timestamp
-                    dayCal.set(Calendar.HOUR_OF_DAY, 0)
-                    dayCal.set(Calendar.MINUTE, 0)
-                    dayCal.set(Calendar.SECOND, 0)
-                    dayCal.set(Calendar.MILLISECOND, 0)
-                    val dayStart = dayCal.timeInMillis
-                    if (stats.containsKey(dayStart)) {
-                        stats[dayStart] = stats.getOrDefault(dayStart, 0) + 1
-                    }
+            // Fill with real data from DB
+            dayStats.forEach { stat ->
+                // Normalize the timestamp coming from SQL to match our LOCAL map keys
+                val cal = Calendar.getInstance()
+                cal.timeInMillis = stat.dayTimestamp
+                // If SQL returned UTC midnight, but we are UTC+1, we shift it to match local day
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                
+                val normalizedTimestamp = cal.timeInMillis
+                if (statsMap.containsKey(normalizedTimestamp)) {
+                    statsMap[normalizedTimestamp] = stat.count
                 }
-            stats.toSortedMap()
+            }
+            statsMap.toSortedMap()
         }
     }
 }

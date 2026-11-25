@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import fr.lachemoilagrappe.domain.repository.SettingsRepository
+import fr.lachemoilagrappe.domain.repository.SmsMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -38,6 +39,10 @@ class SettingsRepositoryImpl @Inject constructor(
         val SLEEP_MODE_ENABLED = booleanPreferencesKey("sleep_mode_enabled")
         val SLEEP_MODE_START_TIME = stringPreferencesKey("sleep_mode_start_time")
         val SLEEP_MODE_END_TIME = stringPreferencesKey("sleep_mode_end_time")
+        val ALLOW_FIXED_LINES_ENABLED = booleanPreferencesKey("allow_fixed_lines_enabled")
+        val ALLOW_LOCAL_AREA_CODE_ENABLED = booleanPreferencesKey("allow_local_area_code_enabled")
+        val LOCAL_AREA_CODE_PREFIX = stringPreferencesKey("local_area_code_prefix")
+        val AUTO_SMS_MODE = stringPreferencesKey("auto_sms_mode")
     }
 
     private object Defaults {
@@ -52,6 +57,10 @@ class SettingsRepositoryImpl @Inject constructor(
         const val SLEEP_MODE_ENABLED = false
         const val SLEEP_MODE_START_TIME = "22:00"
         const val SLEEP_MODE_END_TIME = "07:00"
+        const val ALLOW_FIXED_LINES_ENABLED = true
+        const val ALLOW_LOCAL_AREA_CODE_ENABLED = false
+        const val LOCAL_AREA_CODE_PREFIX = "0473"
+        val AUTO_SMS_MODE = SmsMode.MANUAL
     }
 
     override val filterUnknownEnabled: Flow<Boolean> = context.dataStore.data
@@ -95,6 +104,21 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override val sleepModeEndTime: Flow<String> = context.dataStore.data
         .map { it[Keys.SLEEP_MODE_END_TIME] ?: Defaults.SLEEP_MODE_END_TIME }
+
+    override val allowFixedLinesEnabled: Flow<Boolean> = context.dataStore.data
+        .map { it[Keys.ALLOW_FIXED_LINES_ENABLED] ?: Defaults.ALLOW_FIXED_LINES_ENABLED }
+
+    override val allowLocalAreaCodeEnabled: Flow<Boolean> = context.dataStore.data
+        .map { it[Keys.ALLOW_LOCAL_AREA_CODE_ENABLED] ?: Defaults.ALLOW_LOCAL_AREA_CODE_ENABLED }
+
+    override val localAreaCodePrefix: Flow<String> = context.dataStore.data
+        .map { it[Keys.LOCAL_AREA_CODE_PREFIX] ?: Defaults.LOCAL_AREA_CODE_PREFIX }
+
+    override val autoSmsMode: Flow<SmsMode> = context.dataStore.data
+        .map { preferences ->
+            val name = preferences[Keys.AUTO_SMS_MODE] ?: Defaults.AUTO_SMS_MODE.name
+            try { SmsMode.valueOf(name) } catch (e: Exception) { Defaults.AUTO_SMS_MODE }
+        }
 
     override suspend fun setFilterUnknownEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.FILTER_UNKNOWN_ENABLED] = enabled }
@@ -140,6 +164,22 @@ class SettingsRepositoryImpl @Inject constructor(
         context.dataStore.edit { it[Keys.SLEEP_MODE_END_TIME] = time }
     }
 
+    override suspend fun setAllowFixedLinesEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.ALLOW_FIXED_LINES_ENABLED] = enabled }
+    }
+
+    override suspend fun setAllowLocalAreaCodeEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[Keys.ALLOW_LOCAL_AREA_CODE_ENABLED] = enabled }
+    }
+
+    override suspend fun setLocalAreaCodePrefix(prefix: String) {
+        context.dataStore.edit { it[Keys.LOCAL_AREA_CODE_PREFIX] = prefix }
+    }
+
+    override suspend fun setAutoSmsMode(mode: SmsMode) {
+        context.dataStore.edit { it[Keys.AUTO_SMS_MODE] = mode.name }
+    }
+
     override suspend fun getFilterUnknownEnabled(): Boolean = filterUnknownEnabled.first()
     override suspend fun getAutoSmsEnabled(): Boolean = autoSmsEnabled.first()
     override suspend fun getSmsConfirmationMode(): Boolean = smsConfirmationMode.first()
@@ -151,6 +191,10 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun getSleepModeEnabled(): Boolean = sleepModeEnabled.first()
     override suspend fun getSleepModeStartTime(): String = sleepModeStartTime.first()
     override suspend fun getSleepModeEndTime(): String = sleepModeEndTime.first()
+    override suspend fun getAllowFixedLinesEnabled(): Boolean = allowFixedLinesEnabled.first()
+    override suspend fun getAllowLocalAreaCodeEnabled(): Boolean = allowLocalAreaCodeEnabled.first()
+    override suspend fun getLocalAreaCodePrefix(): String = localAreaCodePrefix.first()
+    override suspend fun getAutoSmsMode(): SmsMode = autoSmsMode.first()
 
     override suspend fun getCustomTelemarketerPrefixes(): Set<String> = customTelemarketerPrefixes.first()
 

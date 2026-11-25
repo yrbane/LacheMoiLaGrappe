@@ -39,7 +39,7 @@ class HomeScreenTest {
 
         // Check if app name or key elements are displayed
         composeTestRule.onNodeWithText("LacheMoiLaGrappe", substring = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Aujourd'hui", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("depuis ce matin", substring = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("5", substring = true).assertIsDisplayed()
     }
 }

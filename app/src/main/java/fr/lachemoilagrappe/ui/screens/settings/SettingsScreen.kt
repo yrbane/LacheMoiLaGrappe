@@ -1,7 +1,7 @@
 package fr.lachemoilagrappe.ui.screens.settings
 
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +38,7 @@ import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -54,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -73,6 +75,9 @@ fun SettingsScreen(
     var showSmsTemplateDialog by remember { mutableStateOf(false) }
     var showCooldownDialog by remember { mutableStateOf(false) }
     var showPrefixesDialog by remember { mutableStateOf(false) }
+    var showLocalAreaCodeDialog by remember { mutableStateOf(false) }
+    var showSmsModeDialog by remember { mutableStateOf(false) }
+    var showSleepHoursDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -127,6 +132,33 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
+            // === FILTRAGE INTELLIGENT ===
+            SettingsSection(title = "Exceptions de filtrage")
+
+            SwitchSettingsItem(
+                title = "Autoriser les lignes fixes",
+                subtitle = "Ne jamais filtrer les numéros commençant par 01-05",
+                checked = uiState.allowFixedLinesEnabled,
+                onCheckedChange = viewModel::setAllowFixedLinesEnabled
+            )
+
+            SwitchSettingsItem(
+                title = "Autoriser un indicatif local",
+                subtitle = "Ne pas filtrer les numéros commençant par ${uiState.localAreaCodePrefix}",
+                checked = uiState.allowLocalAreaCodeEnabled,
+                onCheckedChange = viewModel::setAllowLocalAreaCodeEnabled
+            )
+
+            if (uiState.allowLocalAreaCodeEnabled) {
+                SettingsItem(
+                    title = "Indicatif local",
+                    subtitle = "Préfixe : ${uiState.localAreaCodePrefix}",
+                    onClick = { showLocalAreaCodeDialog = true }
+                )
+            }
+
+            HorizontalDivider()
+
             // === SMS ===
             SettingsSection(title = "SMS & Sécurité")
             
@@ -137,9 +169,18 @@ fun SettingsScreen(
                 onCheckedChange = viewModel::setPhishingProtectionEnabled
             )
 
+            SettingsItem(
+                title = "Envoi des SMS",
+                subtitle = when (uiState.autoSmsMode) {
+                    fr.lachemoilagrappe.domain.repository.SmsMode.MANUAL -> "Manuel (Notification)"
+                    fr.lachemoilagrappe.domain.repository.SmsMode.AUTOMATIC -> "Automatique (Envoi direct)"
+                },
+                onClick = { showSmsModeDialog = true }
+            )
+
             SwitchSettingsItem(
-                title = "Activer les SMS auto",
-                subtitle = "Envoyer un SMS aux appelants inconnus",
+                title = "Activer les SMS",
+                subtitle = "Activer la réponse automatique aux inconnus",
                 checked = uiState.autoSmsEnabled,
                 onCheckedChange = viewModel::setAutoSmsEnabled
             )
@@ -180,14 +221,14 @@ fun SettingsScreen(
                 SettingsItem(
                     title = "Plage horaire",
                     subtitle = "De ${uiState.sleepModeStartTime} à ${uiState.sleepModeEndTime}",
-                    onClick = { /* Could show a TimePicker here later */ }
+                    onClick = { showSleepHoursDialog = true }
                 )
             }
 
             HorizontalDivider()
 
             // === À PROPOS ===
-            SettingsSection(title = "À propos")
+            SettingsSection(title = stringResource(R.string.about))
 
             SettingsItem(
                 title = "Version",
@@ -195,11 +236,12 @@ fun SettingsScreen(
                 onClick = { }
             )
 
+            val privacyUrl = stringResource(R.string.privacy_policy_url)
             SettingsItem(
                 title = "Politique de confidentialité",
                 subtitle = "Données stockées localement uniquement",
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://yrbane.github.io/LacheMoiLaGrappe/privacy"))
+                    val intent = Intent(Intent.ACTION_VIEW, privacyUrl.toUri())
                     context.startActivity(intent)
                 }
             )
@@ -213,7 +255,7 @@ fun SettingsScreen(
                 title = "Faire un don",
                 subtitle = "Gratuit, open-source, sans pub. Un petit coup de pouce ?",
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://paypal.me/sphilippe1209"))
+                    val intent = Intent(Intent.ACTION_VIEW, "https://paypal.me/sphilippe1209".toUri())
                     context.startActivity(intent)
                 }
             )
@@ -222,7 +264,7 @@ fun SettingsScreen(
                 title = "Code source",
                 subtitle = "github.com/yrbane/LacheMoiLaGrappe",
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/yrbane/LacheMoiLaGrappe"))
+                    val intent = Intent(Intent.ACTION_VIEW, "https://github.com/yrbane/LacheMoiLaGrappe".toUri())
                     context.startActivity(intent)
                 }
             )
@@ -264,6 +306,102 @@ fun SettingsScreen(
             onDismiss = { showPrefixesDialog = false }
         )
     }
+
+    // Dialog Indicatif Local
+    if (showLocalAreaCodeDialog) {
+        LocalAreaCodeDialog(
+            currentPrefix = uiState.localAreaCodePrefix,
+            onDismiss = { showLocalAreaCodeDialog = false },
+            onSave = { prefix ->
+                viewModel.setLocalAreaCodePrefix(prefix)
+                showLocalAreaCodeDialog = false
+            }
+        )
+    }
+
+    // Dialog Mode SMS
+    if (showSmsModeDialog) {
+        SmsModeDialog(
+            currentMode = uiState.autoSmsMode,
+            onDismiss = { showSmsModeDialog = false },
+            onSave = { mode ->
+                viewModel.setAutoSmsMode(mode)
+                showSmsModeDialog = false
+            }
+        )
+    }
+
+    // Dialog Plage horaire Mode Sommeil
+    if (showSleepHoursDialog) {
+        SleepHoursDialog(
+            currentStartTime = uiState.sleepModeStartTime,
+            currentEndTime = uiState.sleepModeEndTime,
+            onDismiss = { showSleepHoursDialog = false },
+            onSave = { start, end ->
+                viewModel.setSleepModeStartTime(start)
+                viewModel.setSleepModeEndTime(end)
+                showSleepHoursDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun SleepHoursDialog(
+    currentStartTime: String,
+    currentEndTime: String,
+    onDismiss: () -> Unit,
+    onSave: (String, String) -> Unit
+) {
+    var startTime by remember { mutableStateOf(currentStartTime) }
+    var endTime by remember { mutableStateOf(currentEndTime) }
+    val timeRegex = remember { Regex("^([01]\\d|2[0-3]):([0-5]\\d)$") }
+    val isValid = timeRegex.matches(startTime) && timeRegex.matches(endTime)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Plage horaire du mode sommeil") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    "Pendant cette période, tous les appels entrants seront autorisés :",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedTextField(
+                    value = startTime,
+                    onValueChange = { startTime = it.take(5) },
+                    label = { Text("Heure de début (HH:MM)") },
+                    placeholder = { Text("22:00") },
+                    singleLine = true,
+                    isError = !timeRegex.matches(startTime),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = endTime,
+                    onValueChange = { endTime = it.take(5) },
+                    label = { Text("Heure de fin (HH:MM)") },
+                    placeholder = { Text("07:00") },
+                    singleLine = true,
+                    isError = !timeRegex.matches(endTime),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onSave(startTime, endTime) },
+                enabled = isValid
+            ) {
+                Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -592,6 +730,130 @@ private fun ArcepPrefixChip(prefix: String) {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LocalAreaCodeDialog(
+    currentPrefix: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var prefix by remember { mutableStateOf(currentPrefix) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Indicatif local") },
+        text = {
+            Column {
+                Text(
+                    "Les numéros commençant par cet indicatif ne seront jamais filtrés.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = prefix,
+                    onValueChange = { 
+                        prefix = it.filter { c -> c.isDigit() }.take(5)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Indicatif local") },
+                    placeholder = { Text("0473") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+                Text(
+                    "Exemple : 0473 pour le Puy-de-Dôme",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(prefix) }) {
+                Text("Enregistrer")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annuler")
+            }
+        }
+    )
+}
+
+@Composable
+private fun SmsModeDialog(
+    currentMode: fr.lachemoilagrappe.domain.repository.SmsMode,
+    onDismiss: () -> Unit,
+    onSave: (fr.lachemoilagrappe.domain.repository.SmsMode) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Mode d'envoi des SMS") },
+        text = {
+            Column {
+                SmsModeItem(
+                    title = "Manuel (Recommandé)",
+                    subtitle = "Une notification s'affiche après l'appel. En cliquant, l'appli SMS s'ouvre avec le message prêt.",
+                    selected = currentMode == fr.lachemoilagrappe.domain.repository.SmsMode.MANUAL,
+                    onClick = { onSave(fr.lachemoilagrappe.domain.repository.SmsMode.MANUAL) }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SmsModeItem(
+                    title = "Automatique",
+                    subtitle = "Le SMS est envoyé directement en arrière-plan. Nécessite la permission SEND_SMS.",
+                    selected = currentMode == fr.lachemoilagrappe.domain.repository.SmsMode.AUTOMATIC,
+                    onClick = { onSave(fr.lachemoilagrappe.domain.repository.SmsMode.AUTOMATIC) }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Fermer")
+            }
+        }
+    )
+}
+
+@Composable
+private fun SmsModeItem(
+    title: String,
+    subtitle: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                if (selected) MaterialTheme.colorScheme.primaryContainer 
+                else Color.Transparent
+            )
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
 @Composable
 private fun CustomPrefixChip(
     prefix: String,

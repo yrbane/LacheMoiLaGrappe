@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,7 +32,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import fr.lachemoilagrappe.R
 import kotlinx.coroutines.launch
 
-private const val PAGE_COUNT = 4
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+
+private const val PAGE_COUNT = 5
 
 @Composable
 fun OnboardingScreen(
@@ -54,7 +58,10 @@ fun OnboardingScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { results ->
-        permissionsGranted = results.values.all { it }
+        // Require core permissions (Contacts & Phone State), SMS/Notifications are optional
+        val contactsGranted = results[Manifest.permission.READ_CONTACTS] == true
+        val phoneGranted = results[Manifest.permission.READ_PHONE_STATE] == true
+        permissionsGranted = contactsGranted && phoneGranted
     }
 
     Column(
@@ -72,13 +79,13 @@ fun OnboardingScreen(
             when (page) {
                 0 -> WelcomePage()
                 1 -> WizardPage(viewModel)
-                2 -> PermissionsPage(
+                2 -> LocalAreaPage(onPrefixSelected = viewModel::setLocalAreaCode)
+                3 -> PermissionsPage(
                     permissionsGranted = permissionsGranted,
                     onRequestPermissions = {
                         val permissions = mutableListOf(
                             Manifest.permission.READ_CONTACTS,
                             Manifest.permission.READ_PHONE_STATE,
-                            Manifest.permission.READ_CALL_LOG,
                             Manifest.permission.SEND_SMS,
                             Manifest.permission.RECEIVE_SMS
                         ).apply {
@@ -89,7 +96,7 @@ fun OnboardingScreen(
                         permissionLauncher.launch(permissions)
                     }
                 )
-                3 -> FinalPage(
+                4 -> FinalPage(
                     roleHeld = roleHeld,
                     onActivate = {
                         requestCallScreeningRole(context, roleRequestLauncher::launch)
@@ -103,8 +110,8 @@ fun OnboardingScreen(
             pageCount = PAGE_COUNT,
             isLastPage = pagerState.currentPage == PAGE_COUNT - 1,
             canGoNext = when(pagerState.currentPage) {
-                2 -> permissionsGranted
-                3 -> roleHeld
+                3 -> permissionsGranted
+                4 -> roleHeld
                 else -> true
             },
             onNext = {
@@ -116,6 +123,85 @@ fun OnboardingScreen(
                 viewModel.completeOnboarding()
                 onOnboardingComplete()
             }
+        )
+    }
+}
+
+@Composable
+private fun LocalAreaPage(onPrefixSelected: (String) -> Unit) {
+    var prefix by remember { mutableStateOf("") }
+    val majorPrefixes = listOf("01", "02", "03", "04", "05")
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Place,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Votre région",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Indiquez votre indicatif local pour laisser passer les appels de vos voisins ou artisans locaux.",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Quick select
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+        ) {
+            majorPrefixes.forEach { major ->
+                FilterChip(
+                    selected = prefix == major,
+                    onClick = { 
+                        prefix = major
+                        onPrefixSelected(major)
+                    },
+                    label = { Text(major) }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Custom precision
+        OutlinedTextField(
+            value = prefix,
+            onValueChange = { 
+                val filtered = it.filter { c -> c.isDigit() }.take(5)
+                prefix = filtered
+                onPrefixSelected(filtered)
+            },
+            label = { Text("Ou un préfixe plus précis") },
+            placeholder = { Text("Ex: 0473") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) }
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = "Laissez vide si vous ne souhaitez pas d'exception locale.",
+            style = MaterialTheme.typography.bodySmall,
+            fontStyle = FontStyle.Italic,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -137,14 +223,14 @@ private fun WelcomePage() {
         )
         Spacer(modifier = Modifier.height(32.dp))
         Text(
-            text = "LacheMoiLaGrappe",
+            text = stringResource(R.string.app_name),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Reprenez le contrôle de votre téléphone en 2 minutes.",
+            text = stringResource(R.string.onboarding_tagline),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -169,16 +255,18 @@ private fun WizardPage(viewModel: OnboardingViewModel) {
         Spacer(modifier = Modifier.height(32.dp))
         
         WizardQuestion(
-            title = "Bloquer les démarcheurs ?",
-            subtitle = "Rejeter les préfixes connus de publicité.",
+            title = stringResource(R.string.onboarding_block_telemarketers),
+            subtitle = stringResource(R.string.onboarding_block_telemarketers_desc),
             icon = Icons.Default.PhoneDisabled,
+            initialSelected = true,
             onChoice = viewModel::setFilterTelemarketers
         )
         Spacer(modifier = Modifier.height(16.dp))
         WizardQuestion(
-            title = "SMS d'identification ?",
-            subtitle = "Demander aux inconnus de s'identifier par SMS.",
+            title = stringResource(R.string.permission_sms_title),
+            subtitle = stringResource(R.string.permission_sms_desc),
             icon = Icons.Default.Sms,
+            initialSelected = false,
             onChoice = viewModel::setAutoSms
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -186,6 +274,7 @@ private fun WizardPage(viewModel: OnboardingViewModel) {
             title = "Bouclier Anti-Arnaque ?",
             subtitle = "Détecter les SMS de phishing (CPF, Colis...).",
             icon = Icons.Default.Phishing,
+            initialSelected = true,
             onChoice = viewModel::setPhishingProtection
         )
     }
@@ -196,9 +285,10 @@ private fun WizardQuestion(
     title: String,
     subtitle: String,
     icon: ImageVector,
+    initialSelected: Boolean = true,
     onChoice: (Boolean) -> Unit
 ) {
-    var selected by remember { mutableStateOf<Boolean?>(null) }
+    var selected by remember { mutableStateOf<Boolean?>(initialSelected) }
     
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -320,7 +410,7 @@ private fun BottomBar(
             modifier = Modifier.fillMaxWidth(),
             enabled = canGoNext
         ) {
-            Text(text = if (isLastPage) "C'est parti !" else "Suivant")
+            Text(text = if (isLastPage) stringResource(R.string.onboarding_finish) else stringResource(R.string.onboarding_next))
         }
     }
 }
@@ -339,5 +429,8 @@ private fun requestCallScreeningRole(context: Context, launcher: (Intent) -> Uni
             val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING)
             launcher(intent)
         }
+    } else {
+        val intent = Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+        launcher(intent)
     }
 }

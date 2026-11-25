@@ -44,7 +44,11 @@ class DecideCallActionIntegrationTest {
         coEvery { settingsRepository.getSleepModeEnabled() } returns false
         coEvery { settingsRepository.getSleepModeStartTime() } returns "22:00"
         coEvery { settingsRepository.getSleepModeEndTime() } returns "07:00"
+        coEvery { settingsRepository.getAllowFixedLinesEnabled() } returns false
+        coEvery { settingsRepository.getAllowLocalAreaCodeEnabled() } returns false
+        coEvery { settingsRepository.getLocalAreaCodePrefix() } returns ""
         coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 0
+        every { phoneNumberHelper.isFixedLine(any()) } returns false
     }
 
     @Test

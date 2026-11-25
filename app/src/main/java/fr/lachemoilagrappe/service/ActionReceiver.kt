@@ -3,13 +3,15 @@ package fr.lachemoilagrappe.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import fr.lachemoilagrappe.domain.repository.UserListRepository
+import fr.lachemoilagrappe.domain.repository.SettingsRepository
 import fr.lachemoilagrappe.domain.usecase.SendIdentitySmsUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -19,6 +21,9 @@ class ActionReceiver : BroadcastReceiver() {
     lateinit var userListRepository: UserListRepository
 
     @Inject
+    lateinit var settingsRepository: SettingsRepository
+
+    @Inject
     lateinit var sendIdentitySmsUseCase: SendIdentitySmsUseCase
 
     @Inject
@@ -26,10 +31,9 @@ class ActionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val phoneNumber = intent.getStringExtra(NotificationHelper.EXTRA_PHONE_NUMBER) ?: return
-        val notificationManager = NotificationManagerCompat.from(context)
 
-        // Annuler la notification
-        notificationManager.cancel(phoneNumber.hashCode())
+        // Annuler la notification avec l'ID sécurisé utilisé lors de sa création
+        notificationHelper.cancelNotificationsForNumber(phoneNumber)
 
         val pendingResult = goAsync()
 
@@ -48,6 +52,15 @@ class ActionReceiver : BroadcastReceiver() {
                             phoneNumber,
                             result.isSuccess
                         )
+                    }
+                    NotificationHelper.ACTION_PREPARE_SMS -> {
+                        val template = settingsRepository.smsTemplate.first()
+                        val smsIntent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = "smsto:$phoneNumber".toUri()
+                            putExtra("sms_body", template)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(smsIntent)
                     }
                     NotificationHelper.ACTION_DISMISS -> {
                         // Juste fermer la notification

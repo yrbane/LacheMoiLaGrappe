@@ -67,16 +67,7 @@ class DecideCallActionUseCase @Inject constructor(
             return CallAction.Allow
         }
 
-        // 0.5 Mode Urgence : si le MÊME numéro appelle 3 fois en moins de 5 minutes
-        val recentAttempts = callLogRepository.getCallCountByNumberSince(
-            normalizedNumber,
-            System.currentTimeMillis() - EMERGENCY_WINDOW_MS
-        )
-        if (recentAttempts >= EMERGENCY_ATTEMPTS - 1) { // -1 car l'appel actuel n'est pas encore loggé
-            return CallAction.Allow
-        }
-
-        // 1. Vérifier la blocklist utilisateur
+        // 1. Vérifier la blocklist utilisateur (prioritaire sur le mode urgence)
         if (userListRepository.isBlocked(phoneNumber)) {
             return CallAction.Block
         }
@@ -86,7 +77,7 @@ class DecideCallActionUseCase @Inject constructor(
             return CallAction.Allow
         }
 
-        // 3. Vérifier les préfixes démarcheurs
+        // 3. Vérifier les préfixes démarcheurs (prioritaire sur le mode urgence)
         if (settingsRepository.getBlockTelemarketersEnabled()) {
             val customPrefixes = settingsRepository.getCustomTelemarketerPrefixes()
             if (isTelemarketerNumber(normalizedNumber, customPrefixes)) {
@@ -94,9 +85,32 @@ class DecideCallActionUseCase @Inject constructor(
             }
         }
 
+        // 3.5 Mode Urgence : si le MÊME numéro inconnu (non bloqué, non démarcheur) appelle 3 fois en moins de 5 minutes
+        val recentAttempts = callLogRepository.getCallCountByNumberSince(
+            normalizedNumber,
+            System.currentTimeMillis() - EMERGENCY_WINDOW_MS
+        )
+        if (recentAttempts >= EMERGENCY_ATTEMPTS - 1) { // -1 car l'appel actuel n'est pas encore loggé
+            return CallAction.Allow
+        }
+
         // 4. Vérifier si c'est un contact connu
         if (contactsRepository.isNumberInContacts(phoneNumber)) {
             return CallAction.Allow
+        }
+
+        // 4.5 Vérifier si les lignes fixes sont autorisées
+        if (settingsRepository.getAllowFixedLinesEnabled() && phoneNumberHelper.isFixedLine(normalizedNumber)) {
+            return CallAction.Allow
+        }
+
+        // 4.6 Vérifier si l'indicatif local est autorisé
+        if (settingsRepository.getAllowLocalAreaCodeEnabled()) {
+            val localPrefix = settingsRepository.getLocalAreaCodePrefix()
+            val nationalNumber = toNationalFormat(normalizedNumber)
+            if (localPrefix.isNotEmpty() && nationalNumber.startsWith(localPrefix)) {
+                return CallAction.Allow
+            }
         }
 
         // 5. Si filtrage des inconnus activé, rejeter
@@ -115,9 +129,18 @@ class DecideCallActionUseCase @Inject constructor(
         return normalized
     }
 
+    private fun toNationalFormat(number: String): String {
+        return when {
+            number.startsWith("+33") -> "0" + number.substring(3)
+            number.startsWith("0033") -> "0" + number.substring(4)
+            else -> number
+        }
+    }
+
     private fun isTelemarketerNumber(normalizedNumber: String, customPrefixes: Set<String>): Boolean {
+        val nationalNumber = toNationalFormat(normalizedNumber)
         val allPrefixes = (ARCEP_PREFIXES + customPrefixes).sortedByDescending { it.length }
-        return allPrefixes.any { prefix -> normalizedNumber.startsWith(prefix) }
+        return allPrefixes.any { prefix -> nationalNumber.startsWith(prefix) }
     }
 
     private suspend fun isCurrentlyInSleepMode(): Boolean {

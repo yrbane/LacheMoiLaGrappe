@@ -27,9 +27,12 @@
 # Keep enum classes used by Room converters
 -keepclassmembers enum fr.lachemoilagrappe.domain.model.** { *; }
 
-# Keep CallScreeningService
+# Keep CallScreeningService & Receivers
 -keep class fr.lachemoilagrappe.service.LacheMoiLaGrappeScreeningService { *; }
 -keep class fr.lachemoilagrappe.service.ActionReceiver { *; }
+-keep class fr.lachemoilagrappe.service.SmsReceiver { *; }
+-keep class fr.lachemoilagrappe.service.LacheMoiLaGrappeTileService { *; }
+-keep class fr.lachemoilagrappe.widget.LacheMoiLaGrappeWidget { *; }
 
 # Keep WorkManager workers
 -keep class fr.lachemoilagrappe.worker.** { *; }

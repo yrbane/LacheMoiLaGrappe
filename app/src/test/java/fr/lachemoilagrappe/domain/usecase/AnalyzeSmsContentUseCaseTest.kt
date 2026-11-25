@@ -32,17 +32,31 @@ class AnalyzeSmsContentUseCaseTest {
     }
 
     @Test
-    fun `when SMS contains Colis keyword, result is phishing`() {
+    fun `when SMS contains Colis keyword and suspicious URL, result is phishing`() {
         val result = useCase("Chronopost: Votre colis est bloqué en douane. Réglez les frais ici: http://livraison.xyz")
         assertTrue(result.isPhishing)
         assertEquals("colis", result.matchedKeyword)
+        assertTrue(result.hasSuspiciousLink)
+    }
+
+    @Test
+    fun `when SMS contains normal conversation with colis and no link, result is NOT phishing`() {
+        val result = useCase("Salut, tu as bien reçu mon colis hier ?")
+        assertFalse("Normal conversation about colis without link or urgency should not be phishing", result.isPhishing)
+    }
+
+    @Test
+    fun `when SMS contains high risk scam phrase without link, result is still phishing`() {
+        val result = useCase("Info ANTAI: Vous avez une amende impayée. Payez sur www.amende-gouv.fr")
+        assertTrue(result.isPhishing)
+        assertEquals("amende", result.matchedKeyword)
+        assertTrue(result.hasSuspiciousLink)
     }
     
     @Test
-    fun `when SMS contains suspicious URL but no keyword, it can still flag it`() {
+    fun `when SMS contains suspicious URL shortener, it flags hasSuspiciousLink`() {
         val result = useCase("Regarde ça : http://bit.ly/12345")
-        // Pour l'instant, on se concentre sur les mots-clés, on ajoutera l'analyse d'URL plus tard.
-        // Mais on s'assure que ça ne crash pas.
-        assertFalse(result.isPhishing) 
+        assertFalse(result.isPhishing)
+        assertTrue(result.hasSuspiciousLink)
     }
 }

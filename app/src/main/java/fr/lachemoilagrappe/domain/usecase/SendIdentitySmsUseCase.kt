@@ -35,8 +35,10 @@ class SendIdentitySmsUseCase @Inject constructor(
         )
 
         return try {
-            // Envoyer le SMS
+            // Envoyer le SMS (avec fallback sur SmsManager.getDefault() pour anciens appareils/multi-SIM)
+            @Suppress("DEPRECATION")
             val smsManager = context.getSystemService(SmsManager::class.java)
+                ?: SmsManager.getDefault()
                 ?: return Result.failure(IllegalStateException("SmsManager non disponible"))
 
             // Diviser le message si nécessaire

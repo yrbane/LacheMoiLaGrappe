@@ -1,0 +1,24 @@
+default_platform(:android)
+
+platform :android do
+  desc "Publier la version release sur le Play Store"
+  lane :deploy do
+    gradle(task: "bundleRelease")
+    upload_to_play_store(
+      track: 'production',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Mettre à jour uniquement les métadonnées (descriptions, screenshots)"
+  lane :metadata do
+    upload_to_play_store(
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+end

@@ -30,6 +30,13 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun setLocalAreaCode(prefix: String) {
+        viewModelScope.launch {
+            settingsRepository.setLocalAreaCodePrefix(prefix)
+            settingsRepository.setAllowLocalAreaCodeEnabled(prefix.isNotEmpty())
+        }
+    }
+
     fun completeOnboarding() {
         viewModelScope.launch {
             settingsRepository.setOnboardingCompleted(true)

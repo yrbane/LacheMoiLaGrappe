@@ -1,0 +1,1 @@
+v1.2.4 - Smart filtering (Landlines & Local area codes), Widget fix, Improved phishing detection, Configurable Sleep Mode and enhanced security.

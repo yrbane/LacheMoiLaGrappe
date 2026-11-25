@@ -2,6 +2,11 @@ package fr.lachemoilagrappe.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 
+enum class SmsMode {
+    MANUAL,      // Prépare le SMS dans l'appli SMS (Default)
+    AUTOMATIC    // Envoie automatiquement (nécessite permission SEND_SMS)
+}
+
 interface SettingsRepository {
     val filterUnknownEnabled: Flow<Boolean>
     val autoSmsEnabled: Flow<Boolean>
@@ -16,6 +21,10 @@ interface SettingsRepository {
     val sleepModeEnabled: Flow<Boolean>
     val sleepModeStartTime: Flow<String>
     val sleepModeEndTime: Flow<String>
+    val allowFixedLinesEnabled: Flow<Boolean>
+    val allowLocalAreaCodeEnabled: Flow<Boolean>
+    val localAreaCodePrefix: Flow<String>
+    val autoSmsMode: Flow<SmsMode>
 
     suspend fun setFilterUnknownEnabled(enabled: Boolean)
     suspend fun setAutoSmsEnabled(enabled: Boolean)
@@ -28,6 +37,10 @@ interface SettingsRepository {
     suspend fun setSleepModeEnabled(enabled: Boolean)
     suspend fun setSleepModeStartTime(time: String)
     suspend fun setSleepModeEndTime(time: String)
+    suspend fun setAllowFixedLinesEnabled(enabled: Boolean)
+    suspend fun setAllowLocalAreaCodeEnabled(enabled: Boolean)
+    suspend fun setLocalAreaCodePrefix(prefix: String)
+    suspend fun setAutoSmsMode(mode: SmsMode)
 
     suspend fun getFilterUnknownEnabled(): Boolean
     suspend fun getAutoSmsEnabled(): Boolean
@@ -40,6 +53,10 @@ interface SettingsRepository {
     suspend fun getSleepModeEnabled(): Boolean
     suspend fun getSleepModeStartTime(): String
     suspend fun getSleepModeEndTime(): String
+    suspend fun getAllowFixedLinesEnabled(): Boolean
+    suspend fun getAllowLocalAreaCodeEnabled(): Boolean
+    suspend fun getLocalAreaCodePrefix(): String
+    suspend fun getAutoSmsMode(): SmsMode
 
     suspend fun getCustomTelemarketerPrefixes(): Set<String>
     suspend fun addCustomTelemarketerPrefix(prefix: String)

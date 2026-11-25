@@ -109,20 +109,27 @@ class HistoryViewModel @Inject constructor(
         val entries = callHistory.value
         if (entries.isEmpty()) return null
 
+        val exportDir = File(context.cacheDir, "exports").apply {
+            if (!exists()) mkdirs()
+            // Purge old exports to avoid keeping unencrypted CSV files in cache
+            listFiles()?.forEach { it.delete() }
+        }
+
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.getDefault())
         val fileName = "lachemoilagrappe_export_${dateFormatter.format(Date())}.csv"
-        val file = File(context.cacheDir, fileName)
+        val file = File(exportDir, fileName)
 
         val csvFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         file.bufferedWriter().use { writer ->
             writer.write("Date,Numéro,Contact,Décision,Raison")
             writer.newLine()
             entries.forEach { entry ->
-                val date = csvFormatter.format(Date(entry.timestamp))
-                val contact = entry.contactName?.replace(",", " ") ?: ""
-                val number = entry.phoneNumber.replace(",", " ")
-                val reason = entry.reason.replace(",", " ")
-                writer.write("$date,$number,$contact,${entry.decision},$reason")
+                val date = sanitizeCsvField(csvFormatter.format(Date(entry.timestamp)))
+                val contact = sanitizeCsvField(entry.contactName ?: "")
+                val number = sanitizeCsvField(entry.phoneNumber)
+                val decision = sanitizeCsvField(entry.decision.name)
+                val reason = sanitizeCsvField(entry.reason)
+                writer.write("$date,$number,$contact,$decision,$reason")
                 writer.newLine()
             }
         }
@@ -132,5 +139,20 @@ class HistoryViewModel @Inject constructor(
             "${context.packageName}.fileprovider",
             file
         )
+    }
+
+    companion object {
+        private val FORMULA_TRIGGERS = setOf('=', '+', '@', '\t', '\r')
+
+        fun sanitizeCsvField(raw: String): String {
+            val singleLine = raw.replace("\r\n", " ").replace("\n", " ").replace("\r", " ")
+            val safeValue = if (singleLine.isNotEmpty() && singleLine[0] in FORMULA_TRIGGERS) {
+                "'$singleLine"
+            } else {
+                singleLine
+            }
+            val escapedQuotes = safeValue.replace("\"", "\"\"")
+            return "\"$escapedQuotes\""
+        }
     }
 }

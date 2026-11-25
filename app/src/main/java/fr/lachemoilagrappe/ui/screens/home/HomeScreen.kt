@@ -7,24 +7,18 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PhoneDisabled
 import androidx.compose.material.icons.filled.Science
@@ -32,27 +26,13 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -65,11 +45,11 @@ import fr.lachemoilagrappe.R
 
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToHistory: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToUserLists: () -> Unit,
-    onNavigateToDebug: (() -> Unit)? = null,
-    viewModel: HomeViewModel = hiltViewModel()
+    onNavigateToDebug: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -84,11 +64,7 @@ fun HomeScreen(
     HomeScreenContent(
         uiState = uiState,
         isScreeningEnabled = isScreeningEnabled,
-        onActivate = {
-            requestScreeningRole(context) { intent ->
-                roleRequestLauncher.launch(intent)
-            }
-        },
+        onActivate = { requestScreeningRole(context) { roleRequestLauncher.launch(it) } },
         onNavigateToHistory = onNavigateToHistory,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToUserLists = onNavigateToUserLists,
@@ -98,7 +74,6 @@ fun HomeScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     uiState: HomeUiState,
@@ -113,11 +88,20 @@ fun HomeScreenContent(
 ) {
     Scaffold(
         topBar = {
+            @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
+                    if (onNavigateToDebug != null) {
+                        IconButton(onClick = onNavigateToDebug) {
+                            Icon(Icons.Default.Science, contentDescription = "Debug")
+                        }
+                    }
                     IconButton(onClick = onNavigateToUserLists) {
-                        Icon(Icons.AutoMirrored.Filled.FormatListBulleted, contentDescription = "Mes listes")
+                        Icon(
+                            Icons.AutoMirrored.Filled.FormatListBulleted,
+                            contentDescription = stringResource(R.string.user_lists_title)
+                        )
                     }
                     IconButton(onClick = onNavigateToHistory) {
                         Icon(Icons.Default.History, contentDescription = stringResource(R.string.history))
@@ -128,17 +112,15 @@ fun HomeScreenContent(
                 }
             )
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Warning if not enabled as call screening service
+            // Status Banner if not active
             if (!isScreeningEnabled) {
                 ActivationCard(onActivate = onActivate)
             }
@@ -148,7 +130,7 @@ fun HomeScreenContent(
                 rejectedToday = uiState.todayRejectedCount,
                 totalBlocked = uiState.totalBlockedCount,
                 isActive = isScreeningEnabled,
-                modifier = Modifier.semantics { 
+                modifier = Modifier.semantics {
                     contentDescription = "Statistiques d'appels : ${uiState.todayRejectedCount} filtrés aujourd'hui, ${uiState.totalBlockedCount} au total."
                 }
             )
@@ -157,7 +139,7 @@ fun HomeScreenContent(
             if (uiState.blockedStats.isNotEmpty()) {
                 StatsChart(
                     stats = uiState.blockedStats,
-                    modifier = Modifier.semantics { 
+                    modifier = Modifier.semantics {
                         contentDescription = "Graphique de l'activité des 7 derniers jours."
                     }
                 )
@@ -182,42 +164,43 @@ fun HomeScreenContent(
                 enabled = isScreeningEnabled
             )
 
-            // Debug test section (debug builds only)
-            if (onNavigateToDebug != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Card(
-                    onClick = onNavigateToDebug,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+            // Navigation Card to User Lists (Allowlist / Blocklist)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onNavigateToUserLists)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Science,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
+                    Icon(
+                        Icons.AutoMirrored.Filled.FormatListBulleted,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.user_lists_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Test du filtrage",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Simuler des appels pour tester le filtrage",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(
+                            text = stringResource(R.string.user_lists_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
+                    Icon(
+                        Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -231,54 +214,96 @@ private fun StatsChart(
 ) {
     val maxVal = stats.values.maxOrNull()?.coerceAtLeast(1) ?: 1
     val primaryColor = MaterialTheme.colorScheme.primary
-    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val secondaryColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
+    var animationPlayed by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        animationPlayed = true
+    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Activité des 7 derniers jours",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.weekly_activity),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = onSurfaceColor,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(
+                    Icons.Default.History,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = onSurfaceColor.copy(alpha = 0.4f)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp),
+                    .height(140.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
                 stats.entries.forEach { entry ->
-                    val barHeight = (entry.value.toFloat() / maxVal * 80).dp
+                    val targetFraction = entry.value.toFloat() / maxVal
+                    val animatedFraction by animateFloatAsState(
+                        targetValue = if (animationPlayed) targetFraction else 0f,
+                        animationSpec = tween(durationMillis = 1000, delayMillis = 100),
+                        label = "barHeight"
+                    )
+
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.weight(1f)
                     ) {
                         if (entry.value > 0) {
                             Text(
-                                entry.value.toString(),
+                                text = entry.value.toString(),
                                 style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
                                 color = primaryColor
                             )
+                        } else {
+                            Text(
+                                text = "0",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = onSurfaceColor.copy(alpha = 0.2f)
+                            )
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        Spacer(modifier = Modifier.height(6.dp))
+                        
                         Box(
                             modifier = Modifier
-                                .width(12.dp)
-                                .height(barHeight.coerceAtLeast(4.dp))
-                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(if (entry.value > 0) primaryColor else surfaceColor)
+                                .width(14.dp)
+                                .fillMaxHeight(animatedFraction.coerceAtLeast(0.02f))
+                                .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 2.dp, bottomEnd = 2.dp))
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(primaryColor, secondaryColor)
+                                    )
+                                )
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
                         Text(
                             text = formatDayLabel(entry.key),
                             style = MaterialTheme.typography.labelSmall,
-                            color = onSurfaceColor
+                            color = if (isToday(entry.key)) primaryColor else onSurfaceColor.copy(alpha = 0.5f),
+                            fontWeight = if (isToday(entry.key)) FontWeight.Bold else FontWeight.Normal
                         )
                     }
                 }
@@ -287,19 +312,125 @@ private fun StatsChart(
     }
 }
 
-private fun formatDayLabel(timestamp: Long): String {
-    val cal = java.util.Calendar.getInstance()
-    cal.timeInMillis = timestamp
-    return when (cal.get(java.util.Calendar.DAY_OF_WEEK)) {
-        java.util.Calendar.MONDAY -> "Lun"
-        java.util.Calendar.TUESDAY -> "Mar"
-        java.util.Calendar.WEDNESDAY -> "Mer"
-        java.util.Calendar.THURSDAY -> "Jeu"
-        java.util.Calendar.FRIDAY -> "Ven"
-        java.util.Calendar.SATURDAY -> "Sam"
-        java.util.Calendar.SUNDAY -> "Dim"
-        else -> ""
+@Composable
+private fun StatsCard(
+    rejectedToday: Int,
+    totalBlocked: Int,
+    isActive: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isActive)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+            else
+                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
+        )
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Icon(
+                Icons.Default.Shield,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(120.dp)
+                    .align(Alignment.CenterEnd)
+                    .offset(x = 30.dp, y = 20.dp)
+                    .graphicsLayer(alpha = 0.05f)
+            )
+
+            Column(
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = if (isActive)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(10.dp)
+                        ) {}
+                        Text(
+                            text = if (isActive) stringResource(R.string.filtering_active) else stringResource(R.string.filtering_inactive),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isActive)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = rejectedToday.toString(),
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        text = stringResource(R.string.calls_filtered_label),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                }
+                
+                Text(
+                    text = stringResource(R.string.since_this_morning),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f)
+                )
+
+                if (totalBlocked > rejectedToday) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.1f),
+                        thickness = 1.dp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.total_blocked_format, totalBlocked),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
     }
+}
+
+private fun isToday(timestamp: Long): Boolean {
+    val cal = java.util.Calendar.getInstance()
+    val today = java.util.Calendar.getInstance()
+    cal.timeInMillis = timestamp
+    return cal.get(java.util.Calendar.DAY_OF_YEAR) == today.get(java.util.Calendar.DAY_OF_YEAR) &&
+           cal.get(java.util.Calendar.YEAR) == today.get(java.util.Calendar.YEAR)
+}
+
+private fun formatDayLabel(timestamp: Long): String {
+    val formatter = java.text.SimpleDateFormat("EEE", java.util.Locale.getDefault())
+    return formatter.format(java.util.Date(timestamp))
+        .removeSuffix(".")
+        .take(3)
+        .replaceFirstChar { it.uppercase() }
 }
 
 @Composable
@@ -323,14 +454,14 @@ private fun ActivationCard(onActivate: () -> Unit) {
                     tint = MaterialTheme.colorScheme.error
                 )
                 Text(
-                    text = "Service non activé",
+                    text = stringResource(R.string.service_not_enabled),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "LacheMoiLaGrappe doit être défini comme service de filtrage d'appels pour fonctionner.",
+                text = stringResource(R.string.service_not_enabled_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
@@ -341,123 +472,9 @@ private fun ActivationCard(onActivate: () -> Unit) {
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Activer maintenant")
+                Text(stringResource(R.string.activate_now))
             }
         }
-    }
-}
-
-@Composable
-private fun StatsCard(
-    rejectedToday: Int,
-    totalBlocked: Int,
-    isActive: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isActive)
-                MaterialTheme.colorScheme.primaryContainer
-            else
-                MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Shield,
-                        contentDescription = null,
-                        tint = if (isActive)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Text(
-                        text = "Aujourd'hui",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (isActive)
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                        else
-                            MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                    )
-                ) {
-                    Text(
-                        text = if (isActive) "Actif" else "Inactif",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isActive)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                StatItem(
-                    value = rejectedToday.toString(),
-                    label = "Appels filtrés",
-                    icon = Icons.Default.PhoneDisabled
-                )
-            }
-            if (totalBlocked > 0) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "$totalBlocked appels bloqués depuis l'installation",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatItem(value: String, label: String, icon: ImageVector) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(
-            icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-        )
     }
 }
 

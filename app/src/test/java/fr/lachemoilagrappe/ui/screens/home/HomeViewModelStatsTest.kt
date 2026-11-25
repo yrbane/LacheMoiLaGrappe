@@ -1,36 +1,59 @@
 package fr.lachemoilagrappe.ui.screens.home
 
+import fr.lachemoilagrappe.domain.repository.CallLogRepository
+import fr.lachemoilagrappe.domain.repository.SettingsRepository
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertFalse
+import org.junit.Before
 import org.junit.Test
 
-/**
- * Tests that the HomeViewModel correctly reports REJECTED count,
- * not total call count (which includes ALLOWED calls).
- *
- * Bug: todayRejectedCount was using getCallCountSince() which counts ALL calls,
- * instead of counting only non-ALLOWED calls.
- */
+@OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelStatsTest {
 
-    @Test
-    fun `todayRejectedCount should exclude ALLOWED calls`() {
-        // The DAO method getCallCountSince counts ALL calls including ALLOWED.
-        // HomeViewModel should use a filtered count instead.
-        //
-        // Scenario: 5 calls today, 2 ALLOWED, 3 REJECTED
-        // Expected todayRejectedCount: 3
-        // Bug behavior: todayRejectedCount shows 5
-        val totalCallsToday = 5
-        val allowedCallsToday = 2
-        val expectedRejected = totalCallsToday - allowedCallsToday
+    private val testDispatcher = UnconfinedTestDispatcher()
+    private lateinit var settingsRepository: SettingsRepository
+    private lateinit var callLogRepository: CallLogRepository
 
-        // This test validates the logic: rejected != total
-        assertNotEquals(
-            "Rejected count must not equal total count when ALLOWED calls exist",
-            totalCallsToday,
-            expectedRejected
-        )
-        assertEquals(3, expectedRejected)
+    @Before
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+        settingsRepository = mockk()
+        callLogRepository = mockk()
+
+        every { settingsRepository.filterUnknownEnabled } returns flowOf(true)
+        every { settingsRepository.autoSmsEnabled } returns flowOf(false)
+        every { callLogRepository.getBlockedCountSinceFlow(any()) } returns flowOf(3)
+        every { callLogRepository.getTotalBlockedCountFlow() } returns flowOf(42)
+        every { callLogRepository.getBlockedStatsLastDays(7) } returns flowOf(mapOf(1000L to 3))
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `HomeViewModel emits todayRejectedCount and totalBlockedCount from repository flows`() = runTest {
+        val viewModel = HomeViewModel(settingsRepository, callLogRepository)
+
+        val state = viewModel.uiState.first { !it.isLoading }
+
+        assertFalse(state.isLoading)
+        assertEquals(3, state.todayRejectedCount)
+        assertEquals(42, state.totalBlockedCount)
+        assertEquals(true, state.filterUnknownEnabled)
+        assertEquals(false, state.autoSmsEnabled)
+        assertEquals(mapOf(1000L to 3), state.blockedStats)
     }
 }

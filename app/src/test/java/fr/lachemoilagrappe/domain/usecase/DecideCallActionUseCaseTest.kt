@@ -41,7 +41,11 @@ class DecideCallActionUseCaseTest {
         coEvery { settingsRepository.getSleepModeEnabled() } returns false
         coEvery { settingsRepository.getSleepModeStartTime() } returns "22:00"
         coEvery { settingsRepository.getSleepModeEndTime() } returns "07:00"
+        coEvery { settingsRepository.getAllowFixedLinesEnabled() } returns false
+        coEvery { settingsRepository.getAllowLocalAreaCodeEnabled() } returns false
+        coEvery { settingsRepository.getLocalAreaCodePrefix() } returns ""
         coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 0
+        every { phoneNumberHelper.isFixedLine(any()) } returns false
 
         // PhoneNumberHelper normalize: simulate realistic behavior
         every { phoneNumberHelper.normalize(any()) } answers {
@@ -169,6 +173,25 @@ class DecideCallActionUseCaseTest {
     }
 
     @Test
+    fun `blocklist takes priority over emergency mode`() = runTest {
+        coEvery { userListRepository.isBlocked("+33698765432") } returns true
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 5
+
+        val result = useCase("+33698765432")
+
+        assertEquals(CallAction.Block, result)
+    }
+
+    @Test
+    fun `telemarketer prefix takes priority over emergency mode`() = runTest {
+        coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 5
+
+        val result = useCase("0162123456")
+
+        assertEquals(CallAction.RejectAsTelemarketer, result)
+    }
+
+    @Test
     fun `emergency mode does not trigger with only 1 recent call`() = runTest {
         coEvery { callLogRepository.getCallCountByNumberSince(any(), any()) } returns 1
 
@@ -186,6 +209,40 @@ class DecideCallActionUseCaseTest {
 
         // Should NOT trigger emergency mode with only 1 prior call
         assertEquals(CallAction.Reject, result)
+    }
+
+    // === E.164 FORMAT TESTS ===
+
+    @Test
+    fun `telemarketer prefix works with E164 normalized number`() = runTest {
+        // phoneNumberHelper.normalize("+33162123456") retourne "+33162123456" (E.164)
+        // Le préfixe ARCEP "0162" doit matcher malgré le format E.164
+        every { phoneNumberHelper.normalize(any()) } returns "+33162123456"
+
+        val result = useCase("+33162123456")
+
+        assertEquals(CallAction.RejectAsTelemarketer, result)
+    }
+
+    @Test
+    fun `telemarketer prefix 0949 works with E164 format`() = runTest {
+        every { phoneNumberHelper.normalize(any()) } returns "+33949123456"
+
+        val result = useCase("+33949123456")
+
+        assertEquals(CallAction.RejectAsTelemarketer, result)
+    }
+
+    @Test
+    fun `local area code prefix works with E164 format`() = runTest {
+        coEvery { settingsRepository.getAllowLocalAreaCodeEnabled() } returns true
+        coEvery { settingsRepository.getLocalAreaCodePrefix() } returns "0473"
+        coEvery { settingsRepository.getFilterUnknownEnabled() } returns true
+        every { phoneNumberHelper.normalize(any()) } returns "+33473123456"
+
+        val result = useCase("+33473123456")
+
+        assertEquals(CallAction.Allow, result)
     }
 
     // === PUBLIC SERVICES TESTS ===

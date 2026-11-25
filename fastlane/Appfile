@@ -1,0 +1,2 @@
+json_key_file("play-publisher-key.json")
+package_name("fr.lachemoilagrappe")
